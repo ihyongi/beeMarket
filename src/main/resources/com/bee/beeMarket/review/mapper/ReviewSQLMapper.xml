@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bee.beeMarket.review.mapper.ReviewSQLMapper">
+	<!-- 리뷰 카테고리 -->
+	<insert id="insertReviewProduct">
+	INSERT INTO ReviewProduct values(
+    Bee_Market_Review_seq.CURRVAL,
+    #{product_category_name}
+	)
+	</insert>
+	
+	<select id="selectProductCategoryList" resultType="com.bee.beeMarket.vo.ProductCategoryVO">
+		SELECT * FROM ProductCategory 
+	</select>
+	
+	<!-- 리뷰메인페이지 목록부분 테이블 삽입 -->
+	<select id="createReviewNo" resultType="int">
+	SELECT Bee_Market_Review_seq.nextval FROM Dual
+	</select>
+	
+	<insert id="insertImage">
+	INSERT INTO Bee_Market_Review_I values(
+    Bee_Market_Review_I_seq.nextval,
+    #{review_no},
+    #{image_location},
+    #{image_original_filename}
+	)
+	</insert>
+	
+	<select id="selectReviewImageNO"
+		resultType="com.bee.beeMarket.vo.ReviewImageVO">
+		SELECT * FROM Bee_Market_Review_I WHERE review_no = #{review_no}
+	</select>
+	
+	<insert id="insert">
+	<![CDATA[
+	INSERT INTO Bee_Market_Review values(
+	#{review_no},
+    #{customer_no},
+    #{review_title},
+    #{review_content},
+    0,
+    #{review_score},
+    SYSDATE,
+    #{product_category_name}
+	)
+	]]>
+	</insert>
+	
+	<select id="selectAll" resultType="com.bee.beeMarket.vo.ReviewVO">
+	select * from (
+	select t1.*, ROWNUM rnum 
+	from(select R.*
+	from Bee_Market_Review R
+	ORDER BY R.review_no DESC)t1
+	)t2
+	<![CDATA[
+	WHERE t2.rnum >= (#{pageNum}-1)*10+1
+	AND t2.rnum <= #{pageNum}*10
+	]]>
+	</select>
+	
+	<select id="selectByNo" resultType="com.bee.beeMarket.vo.ReviewVO">
+	SELECT * FROM Bee_Market_Review WHERE review_no = #{no}
+	</select>
+	
+	<update id="updateReviewContent">
+	UPDATE Bee_Market_Review
+	SET review_title = #{review_title}, review_content= #{review_content}
+	WHERE review_no = #{review_no}
+	</update>
+	
+	<delete id="deleteByNo">
+	DELETE FROM Bee_Market_Review WHERE review_no = #{no}
+	</delete>
+	
+	<insert id="insertReviewComment">
+	INSERT INTO Bee_Market_Review_C VALUES(
+    Bee_Market_Review_C_seq.nextval,
+    #{review_no},
+    #{customer_no},
+    #{reviewcomment_content},
+    SYSDATE
+	)
+	</insert>
+	
+	<select id="selectreviewCommentList" 
+		resultType="com.bee.beeMarket.vo.ReviewCommentVO">
+	SELECT * FROM Bee_Market_Review_C where review_no = #{review_no}
+	</select>
+	
+	<update id="updateReviewComment"><!-- 쿼리문 SET  reviewcomment_content = #{reviewcomment_content}WHERE reviewcomment_no = #{reviewcomment_no} 여기에 SET  reviewcomment_content = #{reviewcomment_content},WHERE reviewcomment_no = #{reviewcomment_no} 쓰면 배드그래머가 뜬다.-->
+		UPDATE Bee_Market_Review_C
+		SET  reviewcomment_content = #{reviewcomment_content}
+		WHERE reviewcomment_no = #{reviewcomment_no}
+	</update>
+	
+	<select id="selectByNoReviewComment"
+		resultType="com.bee.beeMarket.vo.ReviewCommentVO">
+		select * from Bee_Market_Review_C where reviewcomment_no = #{reviewcomment_no}
+	</select>
+	
+	<delete id = "deleteReviewComment">
+		DELETE FROM Bee_Market_Review_C
+		WHERE review_no = #{review_no}
+		AND reviewcomment_no = #{reviewcomment_no}<!-- jsp 넘기는 파라미터 값하고 통일 되어야 한다.-->
+	</delete>
+	
+	<insert id="insertRecommend">
+		INSERT INTO Bee_Market_Review_R VALUES(
+   		 Bee_Market_Review_R_seq.nextval,
+    	#{review_no},
+    	#{customer_no},
+    	SYSDATE
+		)
+	</insert>
+	
+	<select id="selectRecommend" resultType="int"><!-- resultType="int" resultType을 잘 봐야 한다. -->
+	SELECT COUNT(*)
+	FROM Bee_Market_Review_R
+	WHERE review_no = #{review_no}
+	AND customer_no = #{customer_no}
+	</select>
+	
+	<delete id ="deleteRecommend">
+	DELETE FROM Bee_Market_Review_R
+	WHERE review_no = #{review_no}
+	AND customer_no = #{customer_no}
+	</delete>
+	
+	<select id="selectRecommendReviewNO" resultType="int">
+	SELECT COUNT(*) 
+	FROM Bee_Market_Review_R
+	WHERE review_no = #{review_no}
+	</select>
+	
+	<select id="selectReviewContentCount" resultType="int">
+	SELECT COUNT(*) FROM Bee_Market_Review
+	</select>
+	
+	<update id="updateReviewReadCount">
+		update Bee_Market_Review
+		set review_readcount = review_readcount+1
+		where review_no= #{review_no}
+	</update>
+	
+	
+	</mapper>

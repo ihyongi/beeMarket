@@ -1,0 +1,536 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="com.bee.beeMarket.product.mapper.ProductSQLMapper">
+	<!-- createKey -->
+	<select id="createProductKey" resultType="int">
+		select
+		Bee_Product_seq.nextval FROM Dual
+	</select>
+
+	<select id="createProductDetailKey" resultType="int">
+		select
+		Bee_ProductDetail_seq.nextval FROM Dual
+	</select>
+
+	<!-- 상품등록 -->
+	<insert id="insertProduct">
+		INSERT INTO Bee_Product VALUES(
+		#{product_no},
+		#{seller_no},
+		#{product_title},
+		#{product_name},
+		#{categorydetail_no},
+		#{delivery_no},
+		#{product_content},
+		0,
+		SYSDATE
+		)
+	</insert>
+	
+	<!-- 상품 옵션 등록 -->
+	<insert id="insertProductDetail">
+		insert into Bee_ProductDetail values(
+		#{productdetail_no},
+		#{product_no},
+		#{productdetail_option},
+		#{productdetail_price},
+		'N'
+		)
+	</insert>
+	
+	<!-- 검색 -->
+	<select id="selectProductList" resultType="com.bee.beeMarket.vo.ProductVO">
+		SELECT *
+		FROM Bee_Product
+		<if test="searchType != null and searchType == 'product' and searchWord !=null">
+			WHERE product_title LIKE '%' || #{searchWord} || '%'
+			OR product_content LIKE '%' || #{searchWord} || '%'
+		</if>
+		<if test="searchType != null and searchType == 'seller' and searchWord !=null">
+			JOIN Bee_Seller USING (seller_no)
+			WHERE seller_name LIKE '%' || #{searchWord} || '%'
+		</if>
+		ORDER BY product_no DESC
+	</select>
+	
+	
+	<!-- 검색 카테고리로 업데이트 -->
+	<select id="updateSearchListByCategory" resultType="com.bee.beeMarket.vo.ProductVO">
+		SELECT *
+		FROM Bee_Product
+		JOIN Bee_CategoryDetail USING (categorydetail_no)
+		JOIN Bee_Category USING (category_no)
+		<if test="searchType != null and searchType == 'product' and searchWord !=null">
+			WHERE (product_title LIKE '%' || #{searchWord} || '%'
+			OR product_content LIKE '%' || #{searchWord} || '%')
+		</if>
+		<if test="searchType != null and searchType == 'seller' and searchWord !=null">
+			JOIN Bee_Seller USING (seller_no)
+			WHERE (seller_name LIKE '%' || #{searchWord} || '%')
+		</if>
+		AND categorydetail_no = #{categorydetail_no}
+		AND category_no = #{category_no}
+		ORDER BY product_no DESC
+	</select>
+	
+	
+	<!-- 창고 insert -->
+	<insert id="insertProductwarehouse">
+		insert into Bee_ProductWarehouse values(
+		bee_productwarehouse_seq.nextval,
+		#{productdetail_no},
+		#{productwarehouse_pluscount},
+		SYSDATE
+		)
+	</insert>
+
+	<!-- 0529 수정 -->
+	<!-- 상품이미지삽입 -->
+	<insert id="insertProductImage">
+		insert into Bee_ProductImage values(
+			#{productimage_no},
+			#{product_no},
+			#{productimage_location},
+			#{productimage_orifilename}
+		)
+	</insert>
+
+	<!-- 상품이미지가져오기 -->
+	<select id="selectByProductNo"
+		resultType="com.bee.beeMarket.vo.ProductImageVO">
+		select * from Bee_ProductImage where
+		product_no=#{product_no}
+	</select>
+
+	<!-- 상품디테일 가져오기 -->
+	<select id="selectDetailByProductNO"
+		resultType="com.bee.beeMarket.vo.ProductDetailVO">
+		select * from Bee_ProductDetail where
+		product_no=#{product_no}
+	</select>
+
+	<!-- 대분류 가져와야지..? -->
+	<select id="getCategoryList"
+		resultType="com.bee.beeMarket.vo.CategoryVO">
+		select * from Bee_Category
+	</select>
+
+	<!-- 중분류 가져와야지..? -->
+	<select id="getCategoryDetailList"
+		resultType="com.bee.beeMarket.vo.CategoryDetailVO">
+		select * from Bee_CategoryDetail
+	</select>
+
+	<!-- 이 상품의 카테고리를 가져오겠다 -->
+	<select id="getProductCategory" resultType="int">
+		select d.category_no
+		from Bee_product p
+		join Bee_CategoryDetail d on
+		p.categorydetail_no=d.categorydetail_no
+		where product_no=#{product_no}
+	</select>
+	
+	<!-- 중분류 가져오기 AJAX -->
+	<select id="getCategoryDetailByCategoryNo" resultType="com.bee.beeMarket.vo.CategoryDetailVO">
+		SELECT * FROM Bee_CategoryDetail WHERE category_no = #{category_no}
+	</select>
+	
+	<select id="getProductDetailNo"
+		resultType="com.bee.beeMarket.vo.ProductDetailVO">
+		select * from Bee_Product where product_no=#{product_no}
+	</select>
+
+	<!-- 택배사 목록 -->
+	<select id="getDeliveryCompany"
+		resultType="com.bee.beeMarket.vo.DeliveryVO">
+		select * from Bee_Delivery
+	</select>
+
+	<!-- 택배사 이름가져오기 -->
+	<select id="getDeliveryCompanyName"
+		resultType="com.bee.beeMarket.vo.DeliveryVO">
+		select * from Bee_Delivery d
+		join Bee_product p on
+		d.delivery_no=p.delivery_no
+		where product_no=#{product_no}
+	</select>
+
+	<!-- ajax 삭제파트 -->
+	<delete id="deleteProduct">
+		DELETE from bee_product where product_no = #{product_no}
+	</delete>
+	<delete id="deleteProductDetail">
+		DELETE from bee_productdetail where product_no = #{product_no}
+	</delete>
+	<delete id="deleteProductWarehouse">
+		DELETE from bee_productwarehouse where productdetail_no =
+		#{productdetail_no}
+	</delete>
+	<delete id="deleteDiscountProduct">
+		DELETE from bee_discount where productdetail_no = #{productdetail_no}
+	</delete>
+
+	<!-- 할인 삭제 후 detail status N으로 전환 -->
+	<update id="updateUnDiscountStatus">
+		UPDATE Bee_Productdetail set discount_status ='N'
+		where productdetail_no=#{productdetail_no}
+	</update>
+
+	<!-- 입고작업 -->
+	<update id="updateProductWarehousePluscount">
+		UPDATE Bee_productwarehouse
+		set productwarehouse_pluscount=productwarehouse_pluscount +
+		#{add_pluscount}, productwarehouse_writedate=SYSDATE
+		where productdetail_no=#{productdetail_no}
+	</update>
+
+	<!-- 상품 상세페이지 -->
+	<!-- 판매자별 상품리스트 불러오기(여러개) -->
+	<select id="getProductBySellerNo" resultType="com.bee.beeMarket.vo.ProductVO">
+		select * from Bee_Product where seller_no=#{seller_no}
+	</select>
+
+	<!-- 상품별 세부페이지(하나) -->
+	<select id="readProduct" resultType="com.bee.beeMarket.vo.ProductVO">
+		select * from Bee_Product where product_no=#{product_no}
+	</select>
+
+	<!-- 상품수정 -->
+	<update id="updateProduct">
+		update bee_product
+		set product_name=#{product_name},
+		categorydetail_no=#{categorydetail_no},
+		delivery_no=#{delivery_no},
+		product_content=#{product_content}
+		where product_no=#{product_no}
+	</update>
+
+	<update id="updateProductImage">
+		update Bee_ProductImage
+		set
+		productimage_location=#{productimage_location},
+		productimage_orifilename=#{productimage_orifilename}
+		where
+		product_no=#{product_no}
+	</update>
+
+	<update id="updateProductDetail">
+      UPDATE Bee_ProductDetail SET productdetail_option=#{productdetail_option}, productdetail_price=#{productdetail_price} where productdetail_no = #{productdetail_no}
+   </update>
+
+   <update id="updateProductwarehouse">
+      UPDATE Bee_ProductWarehouse SET productwarehouse_pluscount=#{productwarehouse_pluscount} where productdetail_no = #{productdetail_no}
+   </update>
+
+	<!-- 디테일넘으로 창고 조회 -->
+	<select id="selectWarehouseByProductDetailNo" resultType="com.bee.beeMarket.vo.ProductWarehouseVO">
+		select * from bee_productwarehouse where
+		productdetail_no=#{productdetail_no}
+	</select>
+
+	<!-- 조회수 -->
+	<update id="increaseReadcount">
+		update Bee_Product
+		set
+		product_readcount=product_readcount+1
+		where product_no=#{product_no}
+	</update>
+
+	<!-- 상품세부등록 -->
+	<!-- 메인화면 상품 정보 가져오기 -->
+	<!-- <select id="selectProductList" resultType="com.bee.beeMarket.vo.ProductVO">
+		select * from Bee_Product order by product_no DESC
+	</select> -->
+
+	<!-- 메인화면 상품 디테일 가져오기 -->
+	<select id="getProductDetail"
+		resultType="com.bee.beeMarket.vo.ProductDetailVO">
+		select * from Bee_ProductDetail
+	</select>
+
+
+	<!-- 메인화면 상품 이미지 가져오기 -->
+	<select id="getProductImage"
+		resultType="com.bee.beeMarket.vo.ProductImageVO">
+		select * from Bee_ProductImage
+	</select>
+
+
+	<select id="selectProductPriceByProductNO" resultType="com.bee.beeMarket.vo.ProductDetailVO">
+		select productdetail_price from Bee_ProductDetail where
+		product_no=#{product_no}
+	</select>
+
+	<select id="selectProductImageByProductNo" resultType="com.bee.beeMarket.vo.ProductImageVO">
+		select * from Bee_ProductImage where
+		product_no=#{product_no}
+	</select>
+
+	<select id="getProductListByCategoryNo" resultType="com.bee.beeMarket.vo.ProductVO">
+		SELECT * FROM Bee_Product bp , Bee_CategoryDetail bcd ,
+		Bee_Category bc
+		WHERE bp.categorydetail_no = bcd.categorydetail_no
+		AND
+		bcd.category_no = bc.category_no
+		AND bc.category_no = #{no}
+	</select>
+
+	<select id="getMinimumPriceByProductNo" resultType="int">
+		SELECT
+		MIN(productdetail_price)
+		FROM Bee_ProductDetail
+		WHERE product_no = #{no}
+	</select>
+
+	<select id="getMainImageByProductNo" resultType="com.bee.beeMarket.vo.ProductImageVO">
+		SELECT *
+		FROM Bee_ProductImage
+		WHERE product_no = #{no}
+		AND
+		ROWNUM = 1
+	</select>
+	<select id="getCategoryDetailNameByCategoryDetailNo"
+		resultType="String">
+		SELECT categorydetail_name
+		FROM Bee_Categorydetail
+		WHERE
+		categorydetail_no = #{categoryDetailNo}
+	</select>
+
+	<!-- 상품 상세 페이지 -->
+	<!-- 카테고리 관련 -->
+	<select id="getCategoryDetailByNo" resultType="com.bee.beeMarket.vo.CategoryDetailVO">
+		select * from Bee_CategoryDetail where
+		categorydetail_no=#{categorydetail_no}
+	</select>
+
+	<select id="getCategoryNameByNo" resultType="String">
+		select category_name
+		from Bee_Category where category_no=#{category_no}
+	</select>
+
+	<select id="createProductWarehouseKey" resultType="int">
+			select Bee_ProductWarehouse_seq.nextval from Dual
+	</select>
+
+	<select id="createProductImageKey" resultType="int">
+		select Bee_ProductImage_seq.nextval from Dual
+	</select>
+
+	<!-- 할인 -->
+	<!-- 할인페이지 상품 리스트 불러오기 -->
+	<select id="getAllProduct"
+		parameterType="com.bee.beeMarket.vo.ProductVO"
+		resultType="com.bee.beeMarket.vo.ProductVO">
+		select * from bee_product
+	</select>
+
+	<!-- 할인 미적용 상품 디테일 빼오기 -->
+	<select id="getNProductDetailByNo"
+		resultType="com.bee.beeMarket.vo.ProductDetailVO">
+				select * from Bee_ProductDetail where
+				product_no=#{product_no} and
+				discount_status = 'N'
+	</select>
+
+	<!-- 할인 적용 상품 디테일 빼오기 -->
+	<select id="getYProductDetailByNo"
+		resultType="com.bee.beeMarket.vo.ProductDetailVO">
+		select * from Bee_ProductDetail where
+		product_no=#{product_no} and
+		discount_status = 'Y'
+	</select>
+
+	<!-- 디테일넘으로 디스카운트 조회 -->
+   <select id="getDiscountByDetailNo" resultType="com.bee.beeMarket.vo.DiscountVO">
+      select * from Bee_discount where productdetail_no=#{productdetail_no}
+   </select>
+   
+   <!-- 0530 -->
+   <select id="getDiscountByDetailNo1" resultType="com.bee.beeMarket.vo.DiscountVO">
+      select * from Bee_discount where productdetail_no=#{productdetail_no}
+   </select>
+
+	<!-- 상품 할인등록 -->
+	<insert id="insertProductDiscount">
+		insert into Bee_Discount values(
+		Bee_Discount_seq.nextval,
+		#{productdetail_no},
+		#{discount_rate},
+		#{discount_price},
+		#{discount_begindate},
+		#{discount_enddate}
+		)
+	</insert>
+
+	<!-- 상품 할인시 discount_status 업데이트 -->
+	<update id="updateDiscountStatus">
+		update bee_Productdetail set discount_status ='Y'
+		where
+		productdetail_no=#{productdetail_no}
+	</update>
+
+	<!-- 할인 정보 업데이트 -->
+	<update id="updateDiscountInfo">
+		update Bee_Discount
+		set
+		discount_rate=#{discount_rate}, discount_price=#{discount_price},
+		discount_enddate=#{discount_enddate}
+		where
+		productdetail_no=#{productdetail_no}
+	</update>
+
+	<!-- 상품옵션 삭제 -->
+	<delete id="deleteProductDetailByNo">
+		delete from Bee_productDetail where
+		productdetail_no=#{productdetail_no}
+	</delete>
+
+	<!-- 상품창고 삭제 -->
+	<delete id="deleteProductWarehouseByNo">
+		delete from Bee_productWarehouse where
+		productdetail_no=#{productdetail_no}
+	</delete>
+
+	<!-- 제품 상세정보 페이지 정보 -->
+	<select id="selectProductByNo"
+		resultType="com.bee.beeMarket.vo.ProductVO">
+		select * from bee_product where product_no=#{product_no}
+	</select>
+	
+	
+	<!-- 제품 디테일을 productdetail_no로 가져오기 -->
+	<select id="getProductDetailByNo"
+		resultType="com.bee.beeMarket.vo.ProductDetailVO">
+		select * from Bee_ProductDetail where
+		productdetail_no=#{productdetail_no}
+	</select>
+	
+	<!-- 제품 후기 관련 -->
+	<insert id="insertProductComment">
+		INSERT INTO Bee_ProductComment 
+		VALUES(
+			Bee_ProductComment_seq.nextval,
+			#{product_no},
+			#{customer_no},
+			#{productcomment_content},
+			#{productcomment_star},
+			SYSDATE)
+	</insert>
+	
+	<delete id="deleteProductComment">
+		DELETE FROM Bee_ProductComment WHERE productcomment_no = #{productcomment_no}	
+	</delete>
+
+	<select id="selectCommentByProductNo" resultType="com.bee.beeMarket.vo.ProductCommentVO">
+		SELECT * FROM Bee_ProductComment WHERE product_no = #{product_no}
+	</select>
+	
+	<!-- 후기 업데이트 -->
+	<update id="updateProductComment">
+		update Bee_ProductComment set productcomment_content =#{productcomment_content} , productcomment_star=#{productcomment_star}
+		where
+		productcomment_no=#{productcomment_no}
+	</update>
+	
+	<!-- 카테고리 리스트별 항목 출력 -->
+	<select id="getCategoryNoByName" resultType="int">
+		SELECT category_no FROM Bee_Category
+		WHERE category_name = #{category_name}
+	</select>
+	
+	<!-- 쿠폰 리스트 가져오기 , 우선은 전체 출력 -->
+	<select id="getCouponList" resultType="com.bee.beeMarket.vo.CouponVO">
+		SELECT * FROM Bee_Coupon
+	</select>
+	<!-- 쿠폰 발급 -->
+	<insert id="insertCoupon">
+		INSERT INTO Bee_MyCoupon VALUES(
+   			Bee_MyCoupon_seq.nextval,
+    		#{coupon_no},
+    		#{customer_no},
+    		null
+		)
+	</insert>
+	
+	
+	<!-- 쿠폰 이름 가져오기 -->
+	<select id="getCouponByNo" resultType="com.bee.beeMarket.vo.CouponVO">
+		SELECT * FROM Bee_Coupon WHERE coupon_no=#{coupon_no}
+	</select>
+	
+	
+	<!-- BEST 베스트 상품 관련 -->
+	<select id="getProductOrderByBestOrdered" resultType="com.bee.beeMarket.vo.ProductVO">
+		SELECT ( 
+			SELECT COUNT(*) FROM Bee_Product bp2 , Bee_ProductDetail pb , Bee_Order bo
+			WHERE bp2.product_no = pb.product_no 
+			AND pb.productdetail_no = bo.productdetail_no
+			AND bp2.product_no = bp.product_no
+		) as ordercnt, bp.* 
+		FROM Bee_Product bp
+		ORDER BY ordercnt DESC
+	</select>
+	
+	<select id="updateBestProductsByCategory" resultType="com.bee.beeMarket.vo.ProductVO">
+		SELECT ( 
+		    SELECT COUNT(*)
+		    FROM Bee_Product bp2 , Bee_ProductDetail pb , Bee_Order bo
+		    WHERE bp2.product_no = pb.product_no 
+		    AND pb.productdetail_no = bo.productdetail_no
+		    AND bp2.product_no = bp.product_no
+		) as ordercnt, bp.*
+		FROM Bee_Product bp, Bee_Category bc, Bee_CategoryDetail bcd
+		WHERE bp.categorydetail_no = bcd.categorydetail_no
+		AND bcd.category_no = bc.category_no
+		AND bcd.categorydetail_no = #{categorydetail_no}
+		AND bc.category_no = #{category_no}
+		ORDER BY ordercnt DESC
+	</select>
+
+	<!-- product_no로 detailVO -->
+	<select id="getProductDetailByProductNo" resultType="com.bee.beeMarket.vo.ProductDetailVO">
+		SELECT * FROM Bee_ProductDetail WHERE product_no=#{product_no}
+	</select>
+	
+	<!-- product_no로 productVO -->
+	<select id="getProductByNo" resultType="com.bee.beeMarket.vo.ProductVO">
+		SELECT * FROM Bee_Product WHERE product_no=#{product_no}
+	</select>
+	
+	<!-- 0529 -->
+   <update id="reduceProductWarehousePluscount">
+      UPDATE Bee_productwarehouse 
+      set productwarehouse_pluscount=productwarehouse_pluscount - #{order_count} 
+      where productdetail_no=#{productdetail_no}
+   </update>
+   
+   <select id="getMyProductCount" resultType="int">
+      SELECT COUNT(*) FROM Bee_Product WHERE seller_no=#{seller_no}
+   </select>
+   
+   <!-- 모달 pdno 조회 -->
+   <select id="getSellerProductListYByPdno" resultType="com.bee.beeMarket.vo.DeliveryVO">
+      SELECT * FROM Bee_Discount WHERE productdetail_no = #{productdetail_no}
+   </select>
+   
+   <select id="getProductBySellerNoPaging" resultType="com.bee.beeMarket.vo.ProductVO">
+   select t2.* from(
+      select t1.*, rownum rnum from(
+         select * from Bee_Product where seller_no=#{seller_no}
+         )t1
+      )t2
+   <![CDATA[  
+   where t2.rnum >=(#{page_num}-1)*7+1 and t2.rnum<= #{page_num}*7
+            ]]>      
+   </select>
+   
+   <select id="getMyProductDetailCount" resultType="int">
+   		select count(*) from Bee_ProductDetail d 
+   		join Bee_Product p on p.product_no=d.product_no
+   		where p.seller_no=#{seller_no}
+   </select>
+</mapper>

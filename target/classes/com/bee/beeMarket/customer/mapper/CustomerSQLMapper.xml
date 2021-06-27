@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bee.beeMarket.customer.mapper.CustomerSQLMapper">
+
+
+<!-- 메소드 맵핑... ; 빼기 필수...단 오라클만... -->
+	<select id="createCustomerKey" resultType="int">
+		SELECT Bee_Customer_seq.nextval FROM Dual
+	</select>
+
+
+	<insert id="insertCustomerData">
+		INSERT INTO Bee_Customer VALUES(
+		#{customer_no},
+		1,
+		#{customer_id},
+		#{customer_pw},
+		#{customer_name},
+		#{customer_birth},
+		#{customer_gender},
+		#{customer_phone},
+		#{customer_email},
+		SYSDATE
+		)
+	</insert>
+	
+	<insert id="insertAddressData">
+		INSERT INTO Bee_AddressList VALUES(
+		Bee_AddressList_seq.nextval,
+		#{customer_no},
+		#{address_number},
+		#{address_location}
+		)
+	</insert>
+	
+	<select id="selectById" resultType="int">
+		SELECT COUNT(*) FROM Bee_Customer WHERE customer_id = #{id}
+	</select>
+	
+	<select id="selectByIdAndPw" resultType="com.bee.beeMarket.vo.CustomerVO">
+	
+	SELECT C.* FROM Bee_Customer c , Bee_CustomerEmail a
+	WHERE c.customer_no = a.customer_no
+	AND c.customer_id = #{id}
+	AND c.customer_pw = #{pw}
+	AND a.customeremail_auth_complete = 'Y'
+	</select>
+	
+	<select id="selectByNo" resultType="com.bee.beeMarket.vo.CustomerVO">
+		SELECT * FROM Bee_Customer WHERE customer_no = #{customer_no}
+	</select>
+	
+	
+	<!-- 인증 관련 -->
+	<insert id="insertMailAuth">
+		INSERT INTO Bee_CustomerEmail VALUES(
+		    Bee_CustomerEmail_seq.nextval,
+		    #{customer_no},
+		    #{customeremail_auth_key},
+		    'N',
+		    NULL
+		)		
+	</insert>
+	
+	<!-- 이메일 인증 -->
+	<update id="updateMailAuth">
+		UPDATE Bee_CustomerEmail
+		SET customeremail_auth_complete = 'Y' , customeremail_auth_date = SYSDATE
+		WHERE customeremail_auth_key = #{authKey}
+	</update>
+
+	<!-- 주소지 불러오기 -->
+	<select id="getAddressListByCustomerNo"
+		resultType="com.bee.beeMarket.vo.AddressListVO">
+		SELECT *
+		FROM Bee_AddressList
+		WHERE customer_no = #{customer_no}
+	</select>
+
+	<select id="getAddressVOByAddNo"
+		resultType="com.bee.beeMarket.vo.AddressListVO">
+		SELECT *
+		FROM Bee_AddressList
+		WHERE address_no = #{address_no}
+	</select>
+	
+	<!--  qna 게시판 -->
+	<select id="selectByQnANo" resultType="com.bee.beeMarket.vo.CustomerQnAVO">
+		SELECT * FROM Bee_CustomerQnA WHERE customerQnA_no = #{customerQnA_no}
+	</select>
+	<!--  qna 키생성 -->
+	<select id="createCustomerQnAkey" resultType="int">
+		SELECT Bee_CustomerQnA_seq.nextval FROM Dual
+	</select>
+	
+	<!--  qna 인서트  -->
+	<insert id="insertqna">
+		INSERT INTO Bee_CustomerQnA VALUES(
+		    #{customerQnA_no},
+		    #{customer_no},
+		    #{customerqnacategory_no},
+		    #{customerQnA_title},
+		    #{customerQnA_content},
+		    'N',
+		    SYSDATE
+		)					
+	</insert>
+
+
+	<!-- qna 게시판 내용 찾아오기 + 페이지넘버링 -->
+	
+	<select id="selectCustomerQnAContent" resultType="com.bee.beeMarket.vo.CustomerQnAVO">
+		SELECT * FROM (
+		SELECT t1.* , ROWNUM rnum FROM (
+		SELECT cq.* FROM Bee_CustomerQnA cq, Bee_Customer cm
+		WHERE cq.customer_no = cm.customer_no
+		AND cq.customer_no = #{customerNo}
+		ORDER BY cq.customerQnA_no DESC
+		) t1
+		) t2
+		<![CDATA[
+		WHERE t2.rnum >= (#{pageNum}-1)*8+1
+		AND t2.rnum <= #{pageNum}*8
+		]]>
+	</select>
+	
+	<!-- qna 게시판 게시글 갯수 -->
+	<select id="selectContentCount" resultType="int">
+		SELECT COUNT(*) FROM
+		Bee_CustomerQnA
+	</select>
+	
+	<!--  QnA 이미지 삽입  -->
+	<insert id="insertCustomerQnAImage" >
+	insert into Bee_CustomerQnAImage values(
+	Bee_CustomerQnAImage_seq.nextval,
+	#{customerQnA_no},
+	#{customerqnaimage_location},
+	#{customerqnaimage_orifilename}
+	)
+	</insert>
+	<!-- QnA 이미지  QnANo로 가져오기 -->
+	<select id="selectCustomerQnAImageByQnANo" resultType="com.bee.beeMarket.vo.CustomerQnAImageVO">
+		select * from Bee_CustomerQnAImage where
+		customerQnA_no=#{customerQnA_no}
+	</select>
+	
+	<!-- 카테고리 목록  -->
+	<select id="getCustomerQnACategory"
+		resultType="com.bee.beeMarket.vo.CustomerQnACategoryVO">
+		select * from Bee_CustomerQnACategory
+	</select>
+	<!-- 카테고리 이름 가져오기.-->
+	<select id="getCustomerQnACategoryName"
+		resultType="com.bee.beeMarket.vo.CustomerQnACategoryVO">
+		select * from Bee_CustomerQnACategory cqc
+		join Bee_CustomerQnA cq on
+		cqc.customerqnacategory_no=cq.customerqnacategory_no
+		where customerQnA_no=#{customerQnA_no}
+	</select>
+	
+	
+	
+	
+	<!-- 주문관련 소영 -->
+	<select id="getMyCouponListByCustomerNo" resultType="com.bee.beeMarket.vo.MyCouponVO">
+		SELECT * FROM Bee_MyCoupon WHERE customer_no=#{customer_no}
+	</select>
+	
+	<select id="getCoupondataByCouponNo" resultType="com.bee.beeMarket.vo.CouponVO">
+		SELECT * FROM Bee_Coupon WHERE coupon_no=#{coupon_no}
+	</select>
+	
+	<select id="getCouponVOByMyCouponNo" resultType="com.bee.beeMarket.vo.MyCouponVO">
+		SELECT * FROM Bee_MyCoupon WHERE mycoupon_no=#{mycoupon_no}
+	</select>
+	
+	<!-- 마이쿠폰 페이지 -->
+	<select id="getMyCouponCount" resultType="int">
+		SELECT COUNT(*) FROM
+		Bee_MyCoupon
+		WHERE customer_no=#{customer_no}
+	</select>
+	
+	<select id="getMyCouponByNo" resultType="com.bee.beeMarket.vo.MyCouponVO">
+		SELECT * FROM Bee_MyCoupon WHERE customer_no=#{customer_no}
+	</select>
+
+	<!-- myComment 가져오기 -->
+	<select id="getMyCommentByNo" resultType="com.bee.beeMarket.vo.ProductCommentVO">
+		SELECT * FROM Bee_ProductComment WHERE customer_no=#{customer_no}
+	</select>
+	
+	<!-- Point List 가져오기 -->
+	<select id="getJellyListByNo" resultType="com.bee.beeMarket.vo.CustomerPointVO">
+		SELECT * FROM Bee_CustomerPoint WHERE Customer_no=#{customer_no}
+	</select>
+	
+	<!-- Point Detail 가져오기 -->
+	<select id="selectPointDetailByNo" resultType="com.bee.beeMarket.vo.CustomerPointDetailVO">
+		SELECT * FROM Bee_CustomerPointDetail WHERE pointdetail_no = #{pointdetail_no}
+	</select>
+	
+	<!-- 마이페이지 상단 네비 고객 정보 -->
+	<select id="getMyPoint" resultType="int">
+		SELECT nvl(p.pluspoint,0) - nvl(n.minuspoint,0)
+		from (select sum(point_plus) as pluspoint from Bee_CustomerPoint WHERE customer_no=#{customer_no}) p cross join 
+     	(select SUM(point_minus) as minuspoint from Bee_CustomerPoint WHERE customer_no=#{customer_no}) n
+	</select>
+	
+	<select id="getMyDeliveryCount" resultType="int">
+		SELECT COUNT(*) FROM
+		Bee_Order
+		WHERE customer_no=#{customer_no}
+		AND order_status_no=3
+	</select>
+	
+	<!-- 고객정보수정 -->
+	<select id="checkCustomerInfo" resultType="int">
+		SELECT COUNT(*) FROM Bee_Customer where customer_id = #{customer_id} AND customer_pw = #{customerPw}
+	</select>
+	
+	
+	<!-- 마이페이지 배송지 불러오기 -->
+	<select id="getmyAddressListByNo"
+		resultType="com.bee.beeMarket.vo.AddressListVO">
+		SELECT *
+		FROM Bee_AddressList
+		WHERE customer_no = #{customer_no}
+		ORDER BY address_no ASC
+	</select>
+	
+	<!-- 마이페이지 배송지 추가 -->
+	<insert id="addDelivery">
+		INSERT INTO Bee_AddressList VALUES(
+		Bee_AddressList_seq.nextval,
+		#{customer_no},
+		#{address_number},
+		#{address_location}
+		)
+	</insert>
+	<!-- 마이페이지 배송지 삭제 -->
+	<delete id="deleteDelivery">
+		DELETE from Bee_AddressList where address_no = #{address_no}
+	</delete>
+	<!-- 마이페이지 주문상태별 조회 -->
+	<select id="getmyOrderListByNo" resultType="com.bee.beeMarket.vo.OrderVO">
+		SELECT *
+		FROM Bee_Order
+		WHERE order_status_no = #{order_status_no}
+		AND customer_no = #{customer_no}
+		ORDER BY order_no ASC
+	</select>
+	
+	<!-- 본인이 쓴 구매후기 상품별로 하나 조회 -->
+	<select id="getCommentByNo" resultType="com.bee.beeMarket.vo.ProductCommentVO">
+		SELECT *
+		FROM Bee_ProductComment
+		WHERE product_no = #{product_no}
+		AND customer_no = #{customer_no}
+	</select>
+	
+	<!-- 로얄젤리포인트 선물주고 받는 쿼리 -->
+	<insert id="insertGiftJelly">
+		INSERT INTO Bee_CustomerPoint VALUES(
+		Bee_CustomerPoint_seq.nextval,
+		#{customer_no},
+		4,
+		0,
+		#{point_minus},
+		SYSDATE
+		)
+	</insert>
+	
+	<select id="getCustomerNOById" resultType="int">
+		SELECT customer_no
+		FROM Bee_Customer
+		WHERE customer_id = #{toCustomer_id}
+	</select>
+	
+	<insert id="takeGiftJelly">
+		INSERT INTO Bee_CustomerPoint VALUES(
+		Bee_CustomerPoint_seq.nextval,
+		#{toCustomer_no},
+		2,
+		#{point_minus},
+		0,
+		SYSDATE
+		)
+	</insert>
+	
+	<select id="getCustomerByNo" resultType="com.bee.beeMarket.vo.CustomerVO">
+		SELECT * FROM Bee_Customer
+		WHERE customer_no = #{customer_no}
+	</select>
+	
+	<select id="getDeliveryByNo" resultType="com.bee.beeMarket.vo.AddressListVO">
+		SELECT * FROM Bee_AddressList
+		WHERE address_no = #{address_no}
+	</select>
+	
+	
+	<insert id="insertLikeVO">
+		INSERT INTO Bee_LikeProduct VALUES(
+			Bee_LikeProduct_seq.nextval,
+			#{customer_no},
+			#{product_no}
+		)
+	</insert>
+	
+	<select id="getMyLikeCount" resultType="int">
+		SELECT COUNT(*) FROM Bee_LikeProduct WHERE customer_no=#{customer_no} AND product_no = #{product_no}
+	</select>
+	
+	
+	<delete id="deleteLikeVO">
+		DELETE FROM Bee_LikeProduct WHERE customer_no=#{customer_no} AND product_no = #{product_no}
+	</delete>
+	
+	
+	
+	<insert id="insertAlarm">
+		INSERT INTO Bee_Alarm VALUES(
+			Bee_Alarm_seq.nextval,
+			#{customer_no},
+			#{product_no},
+			#{alarm_comment},
+			'N',
+			SYSDATE,
+			null
+		)
+	</insert>
+	
+	<select id="getLikeVOByProductNo" resultType="com.bee.beeMarket.vo.LikeProductVO">
+		SELECT * FROM Bee_LikeProduct WHERE product_no = #{product_no}
+	</select>
+
+
+
+
+
+
+
+
+	<!-- 526 테스트 채팅 -->
+	<select id="getChatList" resultType="com.bee.beeMarket.vo.ChatVO">
+		SELECT * FROM bee_chat where channel_no=#{channel_no} order by chat_no asc
+	</select>
+
+	<!-- chat인서트-->
+	<insert id="insertChatLogProcessToAdmin">
+		INSERT INTO bee_chat
+		values(
+		bee_chat_seq.nextval,
+		#{channel_no},
+		#{message},
+		'admin',
+		#{fromMember},
+		SYSDATE,
+		'N'
+		)
+	</insert>
+
+	<!-- 채팅 채널 있는지 여부 조회 -->
+	<select id="selectChatChannel" resultType="Integer">
+		SELECT COUNT(*) from bee_Channel where customer_id=#{fromMember}
+	</select>
+
+	
+	
+	<!-- 채널 생성 -->
+   <insert id="createChatChannel">
+      INSERT INTO bee_channel VALUES(
+         #{channel_no},
+         #{customer_id},
+         SYSDATE
+      )
+   </insert>
+	
+	<!-- createChannelkey -->
+	<select id="createChatChannelKey" resultType="int">
+	   SELECT bee_channel_seq.nextval FROM Dual
+	</select>
+
+	<!-- 멤버 아이디로 채널 불러오기 -->
+	<select id="getChannelByCustomer_id" resultType="com.bee.beeMarket.vo.ChatChannelVO">
+		SELECT * FROM bee_channel where customer_id=#{fromMember}
+	</select>
+
+	<!-- 0601 -->
+	<select id="getLastChatNo" resultType="com.bee.beeMarket.vo.ChatVO">      
+      <![CDATA[
+      select ROWNUM, chat_no from (select * from bee_chat where channel_no=#{channel_no} order by chat_no DESC) 
+      where ROWNUM<=1
+      ]]>
+	</select>
+
+	<select id="createChatKey" resultType="int">
+		SELECT Bee_Chat_seq.nextval FROM Dual
+	</select>
+
+	<!-- 0602 -->
+	<select id="getNextChat" resultType="int">
+		select count(*) from Bee_chat WHERE channel_no = #{channel_no} AND chat_no >
+		#{chat_no}
+	</select>
+
+	<select id="getAddChatList" resultType="com.bee.beeMarket.vo.ChatVO">
+      <![CDATA[
+      select * from Bee_chat WHERE channel_no = #{channel_no} AND chat_no > #{chat_no}
+      ]]>
+	</select>
+
+	<select id="getAddChatListTen" resultType="com.bee.beeMarket.vo.ChatVO">
+      <![CDATA[
+         SELECT * FROM (
+             SELECT t1.* , ROWNUM as rnum FROM (
+                 select bc.* from Bee_chat bc WHERE channel_no = #{channel_no} ORDER BY chat_no DESC
+             ) t1
+         ) t2
+         WHERE t2.rnum <= 10
+         ORDER BY t2.chat_no ASC
+      ]]>
+	</select>
+
+	<select id="getChannelByNo" resultType="com.bee.beeMarket.vo.ChatChannelVO">
+		select * from Bee_channel WHERE customer_no = #{customer_no}
+	</select>
+	
+	
+	
+	<select id="getPointRate" resultType="double">
+		SELECT customergrade_rate 
+		FROM Bee_Customer
+		JOIN Bee_CustomerGrade USING (customergrade_no)
+		WHERE customer_no = #{customer_no} AND customergrade_no = #{customergrade_no}
+	</select>
+	
+   
+   <!-- 0604 -->
+   <!-- 상품취소신청 -->
+   <insert id="cancelOrder">
+      INSERT INTO Bee_cancelOrder VALUES(
+          Bee_cancelOrder_seq.nextval,
+            #{order_no},
+          SYSDATE,
+          #{cancel_description}
+      )               
+   </insert>
+   
+   <!-- 상품반품신청 -->
+   <insert id="refundOrder">
+      insert into Bee_refundOrder values(
+      Bee_refundOrder_seq.nextval,
+      #{order_no},
+      SYSDATE,
+      #{refund_description},
+      null,
+      999
+      )         
+   </insert>
+   
+   <!-- 상품교환신청 -->
+   <insert id="changeOrder">
+      insert into Bee_changeOrder values(
+      Bee_changeOrder_seq.nextval,
+      #{order_no},
+      #{change_productdetail_no},
+      SYSDATE,
+      #{change_description},
+      null,
+      999
+      )         
+   </insert>
+	
+	
+	
+	
+	<!--0605 -->
+	<!-- 구매적립 -->
+	<insert id="insertCustomerPoint">
+		insert into Bee_CustomerPoint values(
+		#{point_no},
+		#{customer_no},
+		3,
+		#{point_plus},
+		0,
+		SYSDATE
+		)
+	</insert>
+
+	<!-- 취소/반품적립 -->
+	<insert id="insertCustomerPointCancel">
+		insert into Bee_CustomerPoint values(
+		#{point_no},
+		#{customer_no},
+		6,
+		#{point_plus},
+		0,
+		SYSDATE
+		)
+	</insert>
+
+	<select id="createCustomerPointkey" resultType="int">
+		SELECT Bee_CustomerPoint_seq.nextval FROM Dual
+	</select>
+	
+	
+	<!-- customer_no로 CustomerGradeVO -->
+	<select id="getCustomerRate" resultType="com.bee.beeMarket.vo.CustomerGradeVO">
+	   select * from Bee_CustomerGrade where customergrade_no=#{customergrade_no}
+	</select>
+	
+	<!-- 구매확정시 포인트 적립 -->
+	<update id="updatePointPlus">
+	   update Bee_CustomerPoint set point_amount=point_amount+#{order_price_customer} where point_no=#{point_no}
+	</update>
+	
+	<insert id="insertPointPlusLog">
+	   insert into Bee_CustomerPoint_log values(
+	   #{pointlog_no},
+	   #{point_no},
+	   #{point_plus},
+	   #{point_minus},
+	   3,
+	   SYSDATE
+	   )
+	</insert>
+	
+	<!--공동구매 본인이 쓴 구매후기 상품별로 하나 조회 -->
+	<select id="getFleeCommentByNo" resultType="com.bee.beeMarket.vo.FleeMarketCommentVO">
+		SELECT *
+		FROM Bee_FleeMarketComment
+		WHERE fleemarket_no = #{fleemarket_no}
+		AND customer_no = #{customer_no}
+	</select>
+	
+	
+	
+</mapper>

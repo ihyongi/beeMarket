@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bee.beeMarket.fleemarket.mapper.FleeMarketSQLMapper">
+	
+	
+	<select id="createFleeMarketDetailKey" resultType="int">
+		select Bee_FleeMarketDetail_seq.nextval FROM Dual
+		</select>
+		
+	<!-- 공동구매 세부클래스 만들기 -->
+	<insert id="insertFleeMarketDetail">
+		insert into Bee_FleeMarketDetail values(
+			#{fleemarketdetail_no},
+			#{fleemarket_no},
+			#{fleemarketdetail_option}
+		)
+	</insert>
+	<select id="selectFleeMarketDetailByFleeMarketNo" resultType="com.bee.beeMarket.vo.FleeMarketDetailVO">
+		select * from Bee_FleeMarketDetail where fleemarket_no=#{fleemarket_no}
+	</select>
+	
+	<select id="getFleeMarketDetailByNo" resultType="com.bee.beeMarket.vo.FleeMarketDetailVO">
+		select * from Bee_FleeMarketDetail where fleemarketdetail_no = #{fleemarketdetail_no}
+	</select>
+	
+	<!-- 메인이미지 by FleeMarketNo -->
+	<select id="getMainImageByFleeMarketNo" resultType="com.bee.beeMarket.vo.FleeMarketImageVO">
+		select * from Bee_FleeMarketImage
+		where fleemarket_no = #{no}
+		ROWNUM = 1
+	</select>
+	
+	<!-- 구매에서 댓글가져오기 -->
+	<select id="selectCommentByFleeMarketNo" resultType="com.bee.beeMarket.vo.FleeMarketCommentVO">
+		select * from Bee_FleeMarketComment
+		where fleemarket_no = #{fleemarket_no}
+		
+	</select>
+	
+	<!-- 공구 장바구니 -->
+	<select id="selectFleeMarketDetailByNo" resultType="com.bee.beeMarket.vo.FleeMarketDetailVO">
+		SELECT * FROM Bee_FleeMarketDetail WHERE fleemarketdetail_no = #{fleemarketdetail_no}
+	</select>
+	
+	<select id="selectFleeMarketByNo" resultType="com.bee.beeMarket.vo.FleeMarketVO">
+		SELECT * FROM Bee_FleeMarket WHERE fleemarket_no=#{fleemarket_no}	
+	</select>
+	
+
+	
+	
+	<select id="getOrderCount" resultType="int">
+		select NVL(SUM(fmc.fleemarketdetail_count) , 0) from Bee_FleeMarket fm , Bee_fleeMarketDetail fmd , Bee_FleeMarketCart fmc
+		WHERE fm.fleemarket_no = fmd.fleemarket_no 
+		AND fmd.fleemarketdetail_no = fmc.fleemarketdetail_no
+		AND fm.fleemarket_no = #{fleemarket_no}
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	<!-- 게시글 -->
+	<select id="createFleeMarketKey" resultType="int">
+		select Bee_FleeMarket_seq.nextval from Dual
+	</select>
+	
+	<!-- 글 작성 -->
+	<insert id="insertFleeMarket">
+	<![CDATA[
+		insert into Bee_FleeMarket values(
+		    #{fleemarket_no},
+		    #{seller_no},
+		    #{delivery_no},
+		    #{categorydetail_no},
+		    #{fleemarket_name},
+		    #{fleemarket_title},
+		    #{fleemarket_content},
+		    0,
+		    #{fleemarket_itemqty},
+		    #{fleemarket_price},
+		    #{fleemarket_discount},
+		    #{fleemarket_startdate},
+		    #{fleemarket_enddate},
+		   	'진행전',
+		    SYSDATE
+		)
+	]]>
+	</insert>
+	<!-- 글 수정 -->
+	<update id="updateFleeMarket">
+		update Bee_FleeMarket
+		set fleemarket_title=#{fleemarket_title},
+		fleemarket_content=#{fleemarket_content}
+		where fleemarket_no=#{fleemarket_no}
+	</update>
+	<!-- 글 삭제 -->
+	<delete id="deleteByFleeMarketNo">
+		delete from Bee_FleeMarket where fleemarket_no=#{fleemarket_no}
+	</delete>
+	<!-- 글 조회수-->
+	<update id="increaseReadCount">
+		update Bee_FleeMarket
+		set fleemarket_readcount=fleemarket_readcount+1
+		where fleemarket_no=#{fleemarket_no}
+	</update>
+	
+	<select id="getFleeMarketList" resultType="com.bee.beeMarket.vo.FleeMarketVO">
+		select * from Bee_FleeMarket order by fleemarket_no DESC
+	</select>
+	
+	<select id="selectByFleeNo" resultType="com.bee.beeMarket.vo.FleeMarketVO">
+		select * from Bee_FleeMarket where fleemarket_no=#{fleemarket_no}
+	</select>
+	
+	<!-- 판매자 공동구매 목록 불러오기 - 검색 -->
+	<select id="selectFleeMarketListBySellerNo" resultType="com.bee.beeMarket.vo.FleeMarketVO">
+	   select 
+		   A.* 
+	      ,B.fleemarketdetail_count
+	      ,A.FLEEMARKET_ITEMQTY - B.fleemarketdetail_count AS fleemarket_remainqty
+	      ,CASE WHEN SYSDATE BETWEEN FLEEMARKET_STARTDATE AND FLEEMARKET_ENDDATE THEN '진행중'
+            	WHEN SYSDATE <![CDATA[<]]> FLEEMARKET_STARTDATE THEN '오픈전'
+            	WHEN SYSDATE > FLEEMARKET_STARTDATE THEN '마감'
+            	ELSE '' END fleemarket_statusnm
+      	  ,CASE WHEN SYSDATE BETWEEN FLEEMARKET_STARTDATE AND FLEEMARKET_ENDDATE THEN 1
+            	WHEN SYSDATE <![CDATA[<]]> FLEEMARKET_STARTDATE THEN 0
+            	WHEN SYSDATE > FLEEMARKET_STARTDATE THEN 2
+            	ELSE 99 END fleemarket_statuscd
+		FROM 
+		(
+		SELECT * FROM(
+		SELECT t1.*, ROWNUM rnum FROM (
+		SELECT bf.* FROM Bee_FleeMarket bf, Bee_seller bs
+		WHERE bf.seller_no =bs.seller_no
+		AND bf.seller_no=#{seller_no}
+		<if
+			test="searchType != null and searchType =='title' and searchWord != null">
+			AND bf.fleemarket_title LIKE '%' || #{searchWord} || '%'
+		</if>
+		<if
+			test="searchType != null and searchType =='content' and searchWord != null">
+			AND bf.fleemarket_content LIKE '%' || #{searchWord} || '%'
+		</if>
+		<if
+			test="searchType != null and searchType =='name' and searchWord != null">
+			AND bs.seller_name LIKE '%' || #{searchWord} || '%'
+		</if>
+		) t1
+		) t2
+		)A
+		LEFT OUTER JOIN 
+		(SELECT FLEEMARKETDETAIL_NO 	
+		       ,sum(fleemarketdetail_count) fleemarketdetail_count	
+		   FROM Bee_FleeMarketCart	
+		   GROUP BY FLEEMARKETDETAIL_NO
+		)B ON (A.FLEEMARKET_NO = B.FLEEMARKETDETAIL_NO) 
+		<!-- 페이지넘버 -->
+      <![CDATA[
+      WHERE A.rnum >= (#{pageNum}-1)*10+1
+      AND A.rnum <= #{pageNum}*10
+      ]]>
+      ORDER BY fleemarket_no DESC
+	</select>
+	
+	<!-- 구매자 공동구매 목록 불러오기 - 검색 -->
+	<select id="selectFleeMarketListByCustomerNo" resultType="com.bee.beeMarket.vo.FleeMarketVO">
+		SELECT * FROM(
+		SELECT t1.*, ROWNUM rnum FROM (
+		SELECT bf.* FROM Bee_FleeMarket bf, Bee_seller bs
+		WHERE bf.seller_no =bs.seller_no
+		<if
+			test="searchType != null and searchType =='title' and searchWord != null">
+			AND bf.fleemarket_title LIKE '%' || #{searchWord} || '%'
+		</if>
+		<if
+			test="searchType != null and searchType =='content' and searchWord != null">
+			AND bf.fleemarket_content LIKE '%' || #{searchWord} || '%'
+		</if>
+		<if
+			test="searchType != null and searchType =='name' and searchWord != null">
+			AND bs.seller_name LIKE '%' || #{searchWord} || '%'
+		</if>
+		ORDER BY bf.fleemarket_no DESC
+		) t1
+		) t2
+		<!-- 페이지넘버 -->
+      <![CDATA[
+      WHERE t2.rnum >= (#{pageNum}-1)*8+1
+      AND t2.rnum <= #{pageNum}*8
+      ]]>
+	</select>
+	
+	<!-- 게시물 총개수 -->
+	<select id="selectFleeMarketCount" resultType="int">
+		select count(*) from Bee_FleeMarket
+	</select>
+	
+	
+	<!-- 댓글 -->
+	<insert id="insertComment">
+		insert into Bee_FleeMarket_Comment values(
+			Bee_FleeMarket_Comment_seq.nextval,
+			#{fleemarket_no},
+			#{customer_no},
+			#{fleemarket_score},
+			#{comment_content},
+			SYSDATE
+		)
+	</insert>
+	
+	<select id="selectCommentList" resultType="com.bee.beeMarket.vo.FleeMarketCommentVO">
+		select * from Bee_FleeMarket_Comment where fleemarket_no=#{fleemarket_no} order by
+		comment_no asc
+	</select>
+	
+	<select id="getCommentContent"
+		resultType="com.bee.beeMarket.vo.FleeMarketCommentVO">
+			select * from Bee_FleeMarket_Comment where comment_no=#{comment_no}
+		</select>
+	
+	<!-- 댓글 수정 -->
+	<update id="updateComment">
+		update Bee_FleeMarket_Comment
+		set comment_content=#{comment_content}, fleemarket_score=#{fleemarket_score}
+		where comment_no=#{comment_no} and fleemarket_no=#{fleemarket_no}
+	</update>
+	
+	<delete id="deleteComment">
+		delete from Bee_FleeMarket_Comment where comment_no=#{comment_no}
+	</delete>
+	
+	<!-- 신청자 신청 -->
+	<insert id="insertApplicant">
+		insert into Bee_FleeMarket_Applicant values(
+		Bee_FleeMarket_Applicant_seq.nextval,
+		#{fleemarket_no},
+		#{customer_no}
+		)
+	</insert>
+	
+	<delete id="deleteApplicant">
+		delete from Bee_FleeMarket_Applicant where
+		fleemarket_no=#{fleemarket_no} and customer_no=#{customer_no}
+	</delete>
+	
+	<select id="selectApplicantCountByFleeMarketNoAndCustomerNo" resultType="int">
+		select count(*) from Bee_FleeMarket_Applicant where
+		fleemarket_no=#{fleemarket_no} and customer_no=#{customer_no}
+	</select>
+	
+	<select id="selectApplicantCountByFleeMarketNo" resultType="int">
+		select count(*) from Bee_FleeMarket_Applicant where
+		fleemarket_no=#{fleemarket_no}
+	</select>
+	
+	
+	<!-- 대분류 중분류 가져와야함 -->
+	<select id="getAllCategory" resultType="com.bee.beeMarket.vo.CategoryVO">
+			select * from Bee_Category order by category_no ASC
+		</select>
+		<select id="getAllCategoryDetail" resultType="com.bee.beeMarket.vo.CategoryDetailVO">
+			SELECT * FROM Bee_CategoryDetail ORDER BY categorydetail_no ASC
+		</select>
+		
+			<!-- 판매자에게 보이는 고객 구매현황 -->
+	<select id="selectOrderListByCustomerToSeller" resultType="HashMap">
+		select (
+		    select customer_name from Bee_Customer WHERE customer_no = c.customer_no
+		) as cname ,
+		f.fleemarket_name , 
+		d.fleemarketdetail_option,
+		c.fleemarketdetail_count,
+		c.fleemarketdetail_count * (select fleemarket_price from Bee_Fleemarket WHERE fleemarket_no = d.fleemarket_no) as total_price
+		
+		from Bee_FleeMarketCart c , Bee_FleeMarketDetail d , Bee_Fleemarket f
+		WHERE c.fleemarketdetail_no = d.fleemarketdetail_no
+		AND d.fleemarket_no = f.fleemarket_no
+		AND f.fleemarket_no = #{fleemarket_no}
+	</select>
+	
+	
+	<!-- BEST 공동구매상품  -->
+	 <select id="selectBestFleeMarket" resultType="com.bee.beeMarket.vo.FleeMarketVO">
+		<![CDATA[ 
+		select * from (
+		    select t1.* from (
+		        select (
+		            select COUNT(*) from Bee_FleeMarket_Applicant fa WHERE fa.fleemarket_no = fm.fleemarket_no
+		        ) AS cnt ,fm.* 
+		        from Bee_FleeMarket fm
+		    ) t1
+		    ORDER BY t1.cnt desc
+		) t2
+		WHERE ROWNUM <= 3
+		]]>
+	</select>
+
+	
+	
+	
+	
+	
+</mapper>

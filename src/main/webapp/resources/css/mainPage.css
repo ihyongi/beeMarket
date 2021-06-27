@@ -1,0 +1,163 @@
+@charset "UTF-8";
+* {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+a:hover{
+	text-decoration: blink !important; 
+}
+.border{
+	border: 1px solid #fede75;
+}
+
+#categoryProductList{
+}
+
+.car_image{
+	border-radius: 5px;
+	margin-top: 8px;
+	height: 452px;
+}
+.container{
+	width : 1200px;
+	max-width: none !important;
+}
+.category_area{
+	color: #333333;
+	text-decoration: none;
+	text-align: center;
+	padding: 7px 0px 7px 0px;
+	
+}
+
+/* 메인페이지 카로셀박스 내부 이미지 및 우측 정보 css */
+.detailImagePrev{
+	margin-left:4px;
+	width: 218px;
+	height: 218px;
+	overflow: hidden;
+    object-fit: cover;
+    border-radius: 5px;
+	cursor: pointer;
+}
+.aTagStyle{
+	display: block;
+	text-decoration:none;
+	font-size: 20px;
+	font-weight:bold;
+	color: #5b5b5b;
+	width: 188px !important;
+	height: 65px;
+	text-overflow: ellipsis;  /* 위에 설정한 100px 보다 길면 말줄임표처럼 표시합니다. */
+  	overflow     : hidden;
+}
+.aTagStyle:hover{
+	text-decoration:none;
+	font-weight:bold;
+	color: #fccd11;
+}
+.name{
+	font-size: 14px;
+	color: #727272;
+	width: 100px !important;
+	text-overflow: ellipsis;  /* 위에 설정한 100px 보다 길면 말줄임표처럼 표시합니다. */
+  	white-space: nowrap;    /* 줄바꿈을 하지 않습니다. */
+  	overflow: hidden;    /* 내용이 길면 감춤니다 */
+}
+.content{
+	font-size: 14px;
+	color: #bcbcbc;
+	width: 100px !important;
+	height: 40px;
+	text-overflow: ellipsis;  /* 위에 설정한 100px 보다 길면 말줄임표처럼 표시합니다. */
+  	overflow: hidden;    /* 내용이 길면 감춤니다 */
+}
+.price{
+	text-decoration:none;
+	font-size: 20px;
+	font-weight:bold;
+	color: #5b5b5b;
+}
+.category{
+	font-size: 14px;
+	color: #727272;
+}
+
+/* 카테고리별 카드영역 css */
+.cardArea{
+	padding: 12px;
+}
+.cardImagePrev{
+	padding: 0px;
+	width: 276px;
+	height: 276px;
+	overflow: hidden;
+    object-fit: cover;
+   	border-radius: 10px;
+	cursor: pointer;
+}
+.cardTitleStyle{
+	display: block;
+	text-decoration:none;
+	font-size: 20px;
+	font-weight:bold;
+	color: #5b5b5b;
+	width: 188px !important;
+	height: 65px;
+	text-overflow: ellipsis;  /* 위에 설정한 100px 보다 길면 말줄임표처럼 표시합니다. */
+  	overflow     : hidden;
+}
+.cardTitleStyle:hover{
+	text-decoration:none;
+	font-weight:bold;
+	color: #fccd11;
+}
+
+.bannerImageBig{
+	padding: 0px;
+	width: 585px;
+	overflow: hidden;
+    object-fit: cover;
+   	border-radius: 5px;
+	cursor: pointer;
+}
+
+.bestImagePrev{
+	height: 202px;
+	width: 202px;
+	overflow: hidden;
+    object-fit: cover;
+   	border-radius: 5px;
+	cursor: pointer;
+}
+.bestTitleStyle{
+	display: block;
+	text-decoration:none;
+	font-size: 20px;
+	font-weight:bold;
+	color: #5b5b5b;
+	padding-right:12px;
+	width: 267px !important;
+	height: 65px;
+	text-overflow: ellipsis;  /* 위에 설정한 100px 보다 길면 말줄임표처럼 표시합니다. */
+  	overflow     : hidden;
+}
+.bestTitleStyle:hover{
+	color: #fccc0c;
+}
+.carouselBTN{
+	margin-left:0;
+	margin-right:0; 
+}
+.btnLeft{
+	position: relative;
+	/* top: -124px; */
+	left: -40px;
+}
+.btnRight{
+	position: relative;
+	/* top: -124px; */
+	right: -40px;
+}

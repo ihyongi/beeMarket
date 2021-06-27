@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.bee.beeMarket.fleeorder.mapper.FleeOrderSQLMapper">
+
+	<insert id="insertFleeMarketCart">
+		INSERT INTO Bee_FleeMarketCart VALUES(
+			Bee_FleeMarketCart_seq.nextval,
+			#{customer_no},
+			#{fleemarketdetail_no},
+			#{fleemarketdetail_count}
+		)
+	</insert>
+	
+	<select id="getFleeCartByCustomerNo" resultType="com.bee.beeMarket.vo.FleeMarketCartVO">
+		SELECT * FROM Bee_FleeMarketCart 
+		WHERE customer_no = #{customer_no}
+	</select>
+	
+	<select id="getFleeCartCountByCustomerNo" resultType="int">
+		select count(*) from Bee_FleeMarketCart 
+		where customer_no = #{customer_no}
+	</select>
+	
+	<delete id="deleteFleeCart">
+		DELETE FROM Bee_FleeMarketCart 
+		WHERE fleemarketcart_no = #{fleemarketcart_no}
+	</delete>
+	
+	<select id="getFleeCartByFleeCartNo" resultType="com.bee.beeMarket.vo.FleeMarketCartVO">
+		select * 
+		from Bee_FleeMarketCart
+		where fleemarketcart_no = #{fleemarketcart_no}
+	</select>
+	
+	
+	<!-- 주문테이블 인서트 -->
+	
+	<insert id="insertOrderFlee">
+		insert into Bee_OrderFleeMarket values(
+			Bee_OrderFleeMarket_seq.nextval,
+		    #{customer_no},
+		    #{fleemarketdetail_no},
+		    1,
+		    #{address_no},
+		    #{orderpayment_no},
+		    #{orderflee_count},
+		    #{orderflee_price},
+		    SYSDATE
+		)
+	</insert>
+	
+	
+	<select id="getFleeMarketDetailVOByNo" resultType="com.bee.beeMarket.vo.FleeMarketDetailVO">
+		select * from Bee_FleeMarketDetail where fleemarketdetail_no = #{fleemarketdetail_no}
+	</select>
+	
+	<!-- OrderList 받기 -->
+	<select id="getOrderFleeListBySellerNo" resultType="com.bee.beeMarket.vo.FleeMarketCartVO">
+		select * Bee_Seller s
+		join Bee_Fleemarket f on f.seller_no = s.seller_no
+		join Bee_FleeMarketDetail fd on fd.fleemarket_no = f.fleemarket_no
+		join Bee_Bee_OrderFleeMarket o on o.fleemarketdetail_no = fd.fleemarketdetail_no
+		where s.seller_no = #{seller_no}
+		order by o.orderflee_orderdate desc
+	</select>
+	
+	<!-- fleemarketdetail_no 로 주문값받기 -->
+	<select id="getOrderByFleeMarketDetailNo" resultType="com.bee.beeMarket.vo.OrderFleeMarketVO">
+		select * from Bee_OrderFleeMarket where fleemarketdetail_no = #{fleemarketdetail_no}
+	</select>
+	
+	<!-- OrderStatus -->
+	<select id="getOrderStatus" resultType="com.bee.beeMarket.vo.OrderStatusVO">
+		select * from Bee_OrderStatus where order_status_no=#{order_status_no}
+	</select>
+	
+	<select id="getOrderStatusList" resultType="com.bee.beeMarket.vo.OrderStatusVO">
+      SELECT * FROM Bee_OrderStatus
+   </select>
+	
+	
+	<!-- AddressList -->
+	<select id="getAddressList" resultType="com.bee.beeMarket.vo.AddressListVO">
+		select * from Bee_AddressList where address_no=#{address_no}
+	</select>
+	
+	<!--  OrderDelivery -->
+	<select id="getOrderDelivery" resultType="com.bee.beeMarket.vo.OrderDeliveryVO">
+		select * from Bee_OrderDelivery where order_no=#{order_no}
+	</select>
+	
+	<select id="getCancelOrderList" resultType="com.bee.beeMarket.vo.CancelVO">
+      SELECT * FROM Bee_cancelOrder where order_no=#{order_no} order by cancel_order_no desc
+   </select>
+   
+   <select id="getChangeOrderList" resultType="com.bee.beeMarket.vo.ChangeVO">
+      SELECT * FROM Bee_changeOrder where order_no=#{order_no} order by change_order_no desc
+   </select>
+   
+   <select id="getRefundOrderList" resultType="com.bee.beeMarket.vo.RefundVO">
+      SELECT * FROM Bee_refundOrder where order_no=#{order_no} order by refund_order_no desc
+   </select>
+	
+
+	
+	<select id="getFleeOrderList" resultType="HashMap">
+		select fd.fleemarket_no, f.fleemarket_price, fc.fleemarketdetail_count 
+		from Bee_fleemarket f ,Bee_fleemarketdetail fd, Bee_fleemarketcart fc, bee_customer c
+		where f.fleemarket_no = fd.fleemarket_no
+		and fd.fleemarketdetail_no = fc.fleemarketdetail_no
+		and fc.customer_no= #{customer_no}
+		order by fc.fleemarketdetail_no asc
+		
+	
+	</select>
+	
+	<select id="getOrderFleeByCustomerNo" resultType="com.bee.beeMarket.vo.OrderFleeMarketVO">
+		select * 
+		from Bee_OrderFleeMarket
+		where customer_no = #{customer_no}
+	</select>
+	
+	<update id="updateOrderFleeStatusByNo">
+      update Bee_OrderFleeMarket set order_status_no=#{order_status_no} where orderflee_no=#{orderflee_no}
+   </update>
+
+	<insert id="insertInvoiceNum">
+      INSERT INTO Bee_OrderDelivery
+      VALUES (
+	      Bee_OrderDelivery_seq.nextval,
+	      #{order_no},
+	      #{order_status_no},
+	      #{orderdelivery_invoiceNumber},
+	      SYSDATE
+      )
+   </insert>
+	
+	
+	<select id="countInvoiceNum" resultType="int">
+      SELECT count(*) FROM Bee_OrderDelivery where order_no=#{order_no}
+   </select>
+   
+   <delete id="deleteInvoiceNum">
+      DELETE FROM Bee_OrderDelivery where order_no=#{order_no}
+   </delete>
+	
+	
+	
+		<!-- 마이페이지 -->
+	<!-- OrderVO 가져오기 -->
+	<select id="getOrderListByCustomerNo" resultType="com.bee.beeMarket.vo.OrderFleeMarketVO">
+		SELECT * FROM Bee_OrderFleeMarket WHERE customer_no=#{customer_no}
+	</select>
+	
+	<!-- OrderStatusName 가져오기 -->
+	<select id="getOrderStatusName" resultType="com.bee.beeMarket.vo.OrderStatusVO">
+		SELECT order_status_name FROM Bee_OrderStatus WHERE order_status_no=#{order_status_no}
+	</select>
+	
+	<!-- 총 수량 -->
+		 <select id="selectFleeMarketDetailTotalByNo" resultType="HashMap">
+		SELECT SUM(FLEEMARKETDETAIL_COUNT) AS TOT_FLEEMARKETDETAIL_COUNT
+		      ,SUM(FLEEMARKET_PRICE) AS FLEEMARKET_PRICE
+		      ,SUM(TOTPRICE) AS TOTPRICE
+			FROM
+			(
+				SELECT A.FLEEMARKETDETAIL_NO
+				      ,A.CUSTOMER_NO
+				      ,A.FLEEMARKETDETAIL_COUNT
+				      ,B.FLEEMARKET_PRICE
+				      ,A.FLEEMARKETDETAIL_COUNT * B.FLEEMARKET_PRICE AS TOTPRICE
+				FROM
+				(SELECT * FROM Bee_FleeMarketCart
+				WHERE 1 = 1 
+				 AND customer_no = #{customer_no}
+				)A
+				LEFT OUTER JOIN 
+					(select * 
+					from Bee_FleeMarket
+					where 1 = 1 
+					)B ON (A.FLEEMARKETDETAIL_NO = B.FLEEMARKET_NO) 
+					WHERE 1 = 1 
+					)T  
+	</select>
+	
+
+	
+	
+</mapper>
+
+
+
+
+
+

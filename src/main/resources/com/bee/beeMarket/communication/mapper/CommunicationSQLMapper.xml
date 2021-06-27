@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="com.bee.beeMarket.communication.mapper.CommunicationSQLMapper">
+
+	<!-- 사진 번호생성 -->
+	<select id="createCommunicationNo" resultType="int">
+		SELECT
+		Bee_Market_Communication_seq.nextval FROM DUAL
+	</select>
+	<!-- 메인페이지 목록부분 테이블 삽입 -->
+	<insert id="insert">
+	<![CDATA[
+	INSERT INTO Bee_Market_Communication values(
+	   #{communication_no},
+	   #{customer_no},
+	   #{communication_title},
+	   #{communication_content},
+	   0,
+	   SYSDATE
+	)
+	
+	]]>
+	</insert>
+
+	<!-- 커뮤니케이션 목록 -->
+	<select id="selectAll"
+		resultType="com.bee.beeMarket.vo.CommunicationVO">
+	<![CDATA[
+	SELECT * FROM Bee_Market_Communication ORDER BY communication_no
+	]]>
+	</select>
+	<!-- 글 번호가 몇번인가 -->
+	<select id="selectByNo"
+		resultType="com.bee.beeMarket.vo.CommunicationVO">
+		SELECT * FROM Bee_Market_Communication WHERE communication_no = #{no}
+	</select>
+
+	<!-- 커뮤니케이션 삭제 -->
+	<delete id="deleteByNo">
+		DELETE FROM Bee_Market_Communication WHERE communication_no = #{no}
+	</delete>
+
+	<!-- 커뮤니케이션 수정 -->
+	<update id="updateCommunicationContent">
+		UPDATE Bee_Market_Communication
+		SET communication_title = #{communication_title}, communication_content=
+		#{communication_content}
+		WHERE communication_no = #{communication_no}
+	</update>
+
+	<!-- 댓글 쓰기 -->
+	<insert id="insertComment">
+		INSERT INTO Bee_Market_Communication_M VALUES(
+		Bee_Market_Communication_M_seq.nextval,
+		#{communication_no},
+		#{customer_no},
+		#{comment_content},
+		SYSDATE
+		)
+	</insert>
+	<!-- 댓글 목록 -->
+	<select id="selectCommentAll"
+		resultType="com.bee.beeMarket.vo.CommentVO">
+	<![CDATA[
+		SELECT * FROM Bee_Market_Communication_M where communication_no= #{comment_no}  ORDER BY comment_no
+	]]>
+	</select>
+	<!-- 댓글번호 -->
+	<select id="selectByNoComment"
+		resultType="com.bee.beeMarket.vo.CommentVO">
+		SELECT * FROM Bee_Market_Communication_M WHERE comment_no= #{comment_no}
+	</select>
+
+	<!-- 댓글 수정 -->
+	<update id="updateComment">
+		UPDATE Bee_Market_Communication_M
+		SET comment_content = #{comment_content}
+		WHERE comment_no = #{comment_no}
+	</update>
+	
+	<!-- 댓글 삭제 -->
+	<delete id = "deleteComment">
+		DELETE FROM Bee_Market_Communication_M
+		WHERE communication_no = #{communication_no} AND comment_no = #{comment_no}
+	</delete>
+	
+	<!-- 사진관련 -->
+
+	<insert id="insertImage">
+		INSERT INTO Bee_Market_Communication_I values(
+		Bee_Market_Communication_I_seq.nextval,
+		#{communication_no},
+		#{image_location},
+		#{image_original_filename}
+		)
+	</insert>
+	<!-- 몇번째 글에 사진을 넣었는가 -->
+	<select id="selectcommunicationImageNO"
+		resultType="com.bee.beeMarket.vo.CommunicationImageVO">
+		SELECT * FROM Bee_Market_Communication_I WHERE communication_no =
+		#{communication_no}
+	</select>
+
+	<!-- 조회수 -->
+	<update id="updateReadCount">
+		UPDATE Bee_Market_Communication
+		SET communication_readcount = communication_readcount + 1
+		WHERE communication_no = #{no}
+	</update>
+
+	<!-- 메인페이지에 글 갯수 출력 -->
+
+	<select id="selectContentCount" resultType="int">
+		SELECT COUNT(*) FROM Bee_Market_Communication
+	</select>
+
+	<!-- 추천 쿼리... -->
+	<insert id="insertRecommend">
+		INSERT INTO Bee_Market_Communication_R VALUES(
+		Bee_Market_Communication_R_seq.nextval,
+		#{communication_no},
+		#{customer_no},
+		SYSDATE
+		)
+	</insert>
+	<!-- 추천 삭제 -->
+	<delete id="deleteRecommend">
+		DELETE FROM Bee_Market_Communication_R
+		WHERE communication_no = #{communication_no} AND customer_no = #{customer_no}
+	</delete>
+	<!-- 누가 추천 하였는가 -->
+	<select id="selectRecommendCountwho" resultType="int">
+		SELECT COUNT(*)
+		FROM Bee_Market_Communication_R
+		WHERE communication_no = #{communication_no}
+		AND customer_no = #{customer_no}
+	</select>
+	<!-- 몇번째 글에 추천을 하였는가 -->
+	<select id="selectRecommendCountByCommunicationNO" resultType="int">
+		SELECT COUNT(*)
+		FROM Bee_Market_Communication_R
+		WHERE communication_no = #{communication_no}
+	</select>
+	
+	<!-- 댓글수 출력 -->
+	<select id="getReplyCount" resultType="int">
+	SELECT COUNT(*) 
+	FROM Bee_Market_Communication_M
+	WHERE communication_no = #{communication_no}
+	</select>
+</mapper>

@@ -1,0 +1,9 @@
+@charset "UTF-8";
+.emptyArea{
+	height: 300px;
+	line-height: 300px;
+	margin: 0 auto;
+	text-align: center;
+	color: #5b5b5b;
+	font-size: 18px;
+}

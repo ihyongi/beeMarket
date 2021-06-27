@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bee.beeMarket.order.mapper.OrderSQLMapper">
+
+	<insert id="inserCart">
+		INSERT INTO Bee_Cart VALUES(
+			Bee_Cart_seq.nextval,
+			#{customer_no},
+			#{productdetail_no},
+			#{productdetail_count}
+		)
+	</insert>
+
+	<select id="getCartCountByCustomerNo" resultType="int">
+		SELECT COUNT(*)
+		FROM Bee_Cart 
+		WHERE customer_no=#{customer_no}
+	</select>
+
+	<select id="getCartByCustomerNo" resultType="com.bee.beeMarket.vo.CartVO">
+		SELECT * FROM Bee_Cart WHERE customer_no=#{customer_no}
+	</select>
+
+	<delete id="deleteCart">
+		DELETE 
+		FROM Bee_Cart
+		WHERE cart_no=#{cart_no}
+	</delete>
+
+	<update id="plusCartCount">
+		UPDATE Bee_Cart
+		SET productdetail_count =
+			productdetail_count+1
+		WHERE cart_no=#{cart_no}
+	</update>
+
+	<update id="minusCartCount">
+		UPDATE Bee_Cart
+		SET productdetail_count =
+			productdetail_count-1
+		WHERE cart_no=#{cart_no}
+	</update>
+
+	<select id="getCartByCartNo" resultType="com.bee.beeMarket.vo.CartVO">
+		SELECT * FROM Bee_Cart WHERE cart_no=#{cart_no}
+	</select>
+
+	<!-- 카트에 담긴 제품 지우기 -->
+	<delete id="deleteAllCart">
+		delete Bee_Cart Where customer_no=#{customer_no}
+	</delete>
+
+
+	<!-- 주문 테이블 인서트 -->
+	<insert id="insertOrder">
+		INSERT INTO Bee_Order VALUES(
+			Bee_Order_seq.nextval,
+			#{customer_no},
+			#{productdetail_no},
+			#{mycoupon_no},
+			#{address_no},
+			#{orderpayment_no},
+			#{order_count},
+			#{order_price},
+			SYSDATE,
+			1,
+			null
+		)
+	</insert>
+
+	<select id="getproductDetailVOByNo" resultType="com.bee.beeMarket.vo.ProductDetailVO">
+		SELECT * 
+		FROM Bee_ProductDetail 
+		WHERE productdetail_no = #{productdetail_no}
+	</select>
+
+	<!-- 주문내역 조회 -->
+	<select id="getOrderListBySellerNo" resultType="com.bee.beeMarket.vo.SellerVO">
+		select * from Bee_seller s
+		join Bee_product p on p.seller_no=s.seller_no
+		join Bee_productDetail d on d.product_no=p.product_no
+		join Bee_order o on o.productdetail_no=d.productdetail_no
+		where s.seller_no=#{seller_no}
+		order by o.order_orderdate DESC
+	</select>
+
+	<select id="getOrderByProductdetailNo" resultType="com.bee.beeMarket.vo.OrderVO">
+		select * from Bee_order where productdetail_no=#{productdetail_no}
+	</select>
+
+	<select id="getOrderStatus" resultType="com.bee.beeMarket.vo.OrderStatusVO">
+		select * from Bee_OrderStatus where order_status_no=#{order_status_no}
+	</select>
+
+	<!-- 이거추가 -->
+	<select id="getOrderStatusList" resultType="com.bee.beeMarket.vo.OrderStatusVO">
+		SELECT * FROM Bee_OrderStatus
+	</select>
+
+	<select id="getOrderStatusListSeller" resultType="com.bee.beeMarket.vo.OrderStatusVO">
+		SELECT * 
+		FROM Bee_OrderStatus 
+		where order_status_no in(1,2,3,4)
+	</select>
+
+	<select id="getOrderStatusListCustomer" resultType="com.bee.beeMarket.vo.OrderStatusVO">
+		SELECT * 
+		FROM Bee_OrderStatus 
+		where order_status_no in(5,6,7,8,9,10,11,12,13,14)
+	</select>
+
+	<update id="updateOrderStatusByNo">
+		update Bee_Order 
+		set order_status_no=#{order_status_no} 
+		where order_no=#{order_no}
+	</update>
+
+	<select id="getAddressList" resultType="com.bee.beeMarket.vo.AddressListVO">
+		SELECT * FROM Bee_AddressList where address_no=#{address_no}
+	</select>
+
+	<select id="getOrderDelivery" resultType="com.bee.beeMarket.vo.OrderDeliveryVO">
+		SELECT * FROM Bee_OrderDelivery where order_no=#{order_no}
+	</select>
+
+	<insert id="insertInvoiceNum">
+		INSERT INTO Bee_OrderDelivery VALUES (
+			Bee_OrderDelivery_seq.nextval,
+			#{order_no},
+			#{order_status_no},
+			#{orderdelivery_invoiceNumber},
+			SYSDATE
+		)
+	</insert>
+
+	<select id="countInvoiceNum" resultType="int">
+		SELECT count(*) FROM Bee_OrderDelivery where order_no=#{order_no}
+	</select>
+
+	<delete id="deleteInvoiceNum">
+		DELETE FROM Bee_OrderDelivery where order_no=#{order_no}
+	</delete>
+
+	<select id="getCancelOrderList" resultType="com.bee.beeMarket.vo.CancelVO">
+		SELECT * 
+		FROM Bee_cancelOrder
+		where order_no=#{order_no}
+		order by cancel_order_no desc
+	</select>
+
+	<select id="getChangeOrderList" resultType="com.bee.beeMarket.vo.ChangeVO">
+		SELECT *
+		FROM Bee_changeOrder 
+		where order_no=#{order_no}
+		order by change_order_no desc
+	</select>
+
+	<select id="getRefundOrderList" resultType="com.bee.beeMarket.vo.RefundVO">
+		SELECT * FROM Bee_refundOrder
+		where order_no=#{order_no}
+		order by refund_order_no desc
+	</select>
+
+	<select id="getOrderVO" resultType="com.bee.beeMarket.vo.OrderVO">
+		select * from Bee_Order
+		where order_no=#{order_no}
+		order by order_orderdate desc
+	</select>
+
+	<update id="updateCancelAuthDate">
+		UPDATE Bee_cancelOrder 
+		SET cancel_authDate=SYSDATE
+		where order_no=#{order_no}
+	</update>
+
+	<update id="updateChangeAuthDate">
+		UPDATE Bee_changeOrder 
+		SET change_authDate=SYSDATE, change_addCost=#{change_addCost}
+		where order_no=#{order_no}
+	</update>
+
+	<update id="updateRefundAuthDate">
+		UPDATE Bee_refundOrder 
+		SET refund_authDate=SYSDATE, refund_addCost=#{refund_addCost}
+		where order_no=#{order_no}
+	</update>
+
+	<!-- 마이페이지 -->
+	<!-- OrderVO 가져오기 -->
+	<select id="getOrderListByCustomerNo" resultType="com.bee.beeMarket.vo.OrderVO">
+		SELECT * FROM Bee_Order WHERE customer_no=#{customer_no}
+	</select>
+
+	<!-- OrderStatusName 가져오기 -->
+	<select id="getOrderStatusName" resultType="com.bee.beeMarket.vo.OrderStatusVO">
+		SELECT order_status_name 
+		FROM Bee_OrderStatus
+		WHERE order_status_no=#{order_status_no}
+	</select>
+
+	<!-- 상품회수중으로 바꾸기 -->
+	<update id="withdrawingProduct">
+		update Bee_Order set order_status_no=11 where order_no=#{order_no}
+	</update>
+
+	<!-- 상품회수완료 --> <!-- 시나리오..상품회수완료는 스케줄로 하루지나면,, 상태확인하고 판매자가 교환진행여부 체크.. -->
+	<update id="withdrawedProduct">
+		update Bee_Order set order_status_no=12 where order_no=#{order_no}
+	</update>
+
+	<!-- 교환신청->교환진행/ 환불신청->환불진행 -->
+	<update id="updateTwoSteps">
+		update Bee_Order
+		set order_status_no=order_status_no+2
+		where order_no=#{order_no}
+	</update>
+
+	<!-- 배송중->배송완료 -->
+	<update id="updateOneStep">
+		update Bee_Order
+		set order_status_no=order_status_no+1
+		where order_no=#{order_no}
+	</update>
+
+	<!-- 교환진행으로 상품회수시 orderdelivery에 송장번호 부여 -->
+	<insert id="insertChangeInvoiceNum">
+		INSERT INTO Bee_OrderDelivery VALUES (
+			Bee_OrderDelivery_seq.nextval,
+			#{order_no},
+			9,
+			#{orderdelivery_invoiceNumber},
+			SYSDATE
+		)
+	</insert>
+
+	<!-- 반품진행으로 상품회수시 orderdelivery에 송장번호 부여 -->
+	<insert id="insertRefundInvoiceNum">
+		INSERT INTO Bee_OrderDelivery VALUES (
+			Bee_OrderDelivery_seq.nextval,
+			#{order_no},
+			10,
+			#{orderdelivery_invoiceNumber},
+			SYSDATE
+		)
+	</insert>
+	
+	<select id="getOrderGenderChartData" resultType="map">
+		SELECT bc.customer_gender , COUNT(*) as ordercnt FROM Bee_Product bp , Bee_ProductDetail pb , Bee_Order bo , Bee_Customer bc
+		WHERE bp.product_no = pb.product_no 
+		AND pb.productdetail_no = bo.productdetail_no
+		AND bo.customer_no = bc.customer_no
+		AND bp.product_no = #{product_no}
+		GROUP BY bc.customer_gender
+	</select>
+	
+	<select id="getOrderAgeChartData" resultType="map">
+		<!--
+		SELECT bc.customer_birth, COUNT(*) as ordercnt FROM Bee_Product bp , Bee_ProductDetail pb , Bee_Order bo , Bee_Customer bc
+		WHERE bp.product_no = pb.product_no 
+		AND pb.productdetail_no = bo.productdetail_no
+		AND bo.customer_no = bc.customer_no
+		AND bp.product_no = #{product_no}
+		GROUP BY bc.customer_birth
+		-->
+		SELECT TO_CHAR(TRUNC((SYSDATE - bc.customer_birth)/365,-1))||' 대' as customer_birth, COUNT(*) as ordercnt FROM Bee_Product bp , Bee_ProductDetail pb , Bee_Order bo , Bee_Customer bc
+		WHERE bp.product_no = pb.product_no 
+		AND pb.productdetail_no = bo.productdetail_no
+		AND bo.customer_no = bc.customer_no
+		AND bp.product_no = #{product_no}
+		GROUP BY TRUNC((SYSDATE - bc.customer_birth)/365,-1)
+		ORDER BY TRUNC((SYSDATE - bc.customer_birth)/365,-1)
+	</select>
+	
+	<insert id="minusRJ">
+		INSERT INTO Bee_CustomerPoint VALUES(
+			Bee_CustomerPoint_seq.nextval,
+			#{customer_no},
+			5,
+			0,
+			#{order_price},
+			SYSDATE
+		)
+	</insert>
+	
+	<insert id="plusRJByOrder">
+		INSERT INTO Bee_CustomerPoint VALUES(
+			Bee_CustomerPoint_seq.nextval,
+			#{customer_no},
+			3,
+			#{get_point},
+			0,
+			SYSDATE
+		)
+	</insert>
+	
+	<!-- 0529 -->
+	<!-- 구매확정시 상태바꾸고 구매확정일 부여 -->
+	<update id="updateConfrimdate">
+	   update Bee_Order set order_status_no=5, order_confrimdate=SYSDATE where order_no=#{order_no}
+	</update>
+	
+	<!-- 교환상품회수중으로 바꾸기 -->
+	<update id="withdrawingChangeProduct">
+	   update Bee_Order set order_status_no=11 where order_no=#{order_no}
+	</update>
+	
+	<!-- 반품상품회수중으로 바꾸기 -->
+	<update id="withdrawingRefundProduct">
+	   update Bee_Order set order_status_no=12 where order_no=#{order_no}
+	</update>
+	
+	<!-- 상품회수완료 --> <!-- 시나리오..상품회수완료는 스케줄로 하루지나면,, 상태확인하고 판매자가 교환진행여부 체크.. -->
+	<update id="retrievedProduct">
+	   update Bee_Order set order_status_no=13 where order_no=#{order_no}
+	</update>
+	
+	<!-- 교환상품 배송준비중 -->
+	<update id="preparingProduct">
+	   update Bee_Order set order_status_no=2 where order_no=#{order_no}
+	</update>
+	
+	<!-- 환불완료 -->
+	<update id="successRefund">
+	   update Bee_Order set order_status_no=14 where order_no=#{order_no}
+	</update>
+	
+	<!-- 0531 -->
+	<update id="updateConfirmPurchase">
+	    update Bee_Order set order_status_no=5, order_confrimdate=SYSDATE where order_no=#{order_no}
+	</update>
+   
+	<!-- 상품을 취소상태로 변경 -->
+	<update id="updateCancelStatus">
+		UPDATE Bee_Order SET order_status_no=6 where order_no=#{order_no}
+	</update>
+
+	<!-- 0604 -->
+	<!-- 상품을 환불신청으로 변경 -->
+	<update id="updateRefundStatus">
+		UPDATE Bee_Order SET order_status_no=8 WHERE order_no=#{order_no}
+	</update>
+
+	<!-- 상품을 교환신청으로 변경 -->
+	<update id="updateChangeStatus">
+		UPDATE Bee_Order SET order_status_no=7 WHERE order_no=#{order_no}
+	</update>
+	
+</mapper>

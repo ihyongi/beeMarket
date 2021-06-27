@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bee.beeMarket.admin.mapper.AdminSQLMapper">
+
+	<!-- 메소드 맵핑... ; 빼기 필수...단 오라클만... -->
+	<select id="createAdminKey" resultType="int">
+		SELECT Bee_Admin_seq.nextval FROM Dual
+	</select>
+	
+
+	<insert id="insert">
+		INSERT INTO Bee_Admin VALUES(
+		    #{admin_no},
+		    #{admin_id},
+		    #{admin_pw},
+		    #{admin_name}
+		)
+	</insert>
+	
+	<select id="selectByIdAndPw" resultType="com.bee.beeMarket.vo.AdminVO">
+		SELECT * FROM Bee_Admin 
+		WHERE admin_id = #{id}
+		AND admin_pw = #{pw}
+	</select>
+	
+	<select id="selectByNo" resultType="com.bee.beeMarket.vo.AdminVO">
+		SELECT * FROM Bee_Admin WHERE admin_no = #{no}
+	</select>
+	
+	
+	<!--  관리자 고객 답변  -->
+	<select id="writeCustomerQnAAnswer">
+		INSERT INTO Bee_CustomerQnAAnswer VALUES(
+			Bee_CustomerQnAAnswer_seq.nextval,
+			#{admin_no},
+			#{customerQnA_no},
+			#{customerqnaanswer_content},
+			SYSDATE
+		)
+	</select>
+	
+	<delete id = "deleteCustomerQnAAnswer">
+		DELETE FROM Bee_CustomerQnAAnswer WHERE customerqnaanswer_no=#{no}
+	</delete>
+	
+	<select id="selectCustomerQnAAnswerByCustomerQnANo" resultType="com.bee.beeMarket.vo.CustomerQnAAnswerVO">
+		SELECT * FROM Bee_CustomerQnAAnswer WHERE customerQnA_no = #{customerQnA_no}
+	</select>
+	
+	<!--  관리자 판매자 답변 -->
+	<select id="writeSellerQnAAnswer">
+		INSERT INTO Bee_SellerQnAAnswer VALUES(
+			Bee_SellerQnAAnswer_seq.nextval,
+			#{admin_no},
+			#{sellerQnA_no},
+			#{sellerqnaanswer_content},
+			SYSDATE
+		)
+	</select>
+	
+	<delete id = "deleteSellerQnAAnswer">
+		DELETE FROM Bee_SellerQnAAnswer WHERE sellerqnaanswer_no=#{no}
+	</delete>
+	
+	<select id="selectSellerQnAAnswerBySellerQnANo" resultType="com.bee.beeMarket.vo.SellerQnAAnswerVO">
+		SELECT * FROM Bee_SellerQnAAnswer WHERE sellerQnA_no = #{sellerQnA_no}
+	</select>
+
+
+
+
+
+
+	<!-- 임시용 관리자 채널 리스트 받아오기 -->
+	<select id="getChannelList" resultType="com.bee.beeMarket.vo.ChatChannelVO">
+		select * from bee_channel
+	</select>
+
+
+	<insert id="insertChatLogProcessToCustomer">
+		INSERT INTO bee_chat values(
+		bee_chat_seq.nextval,
+		#{channel_no},
+		#{message},
+		#{receiver},
+		'admin',
+		SYSDATE,
+		'N'
+		)
+	</insert>
+	
+	<!-- 0605 -->
+	<!-- 수신확인 -->
+	<update id="updateReadStatus">
+		UPDATE bee_chat SET read_status = 'Y' where channel_no = #{channel_no}
+	</update>
+
+	<select id="getChatForList" resultType="com.bee.beeMarket.vo.ChatVO">
+		SELECT * FROM bee_chat where channel_no = #{channel_no}
+	</select>
+
+	<select id="getUnreadCount" resultType="Integer">
+		SELECT count(read_status) from bee_chat where channel_no=#{channel_no} and
+		read_status='N'
+	</select>
+
+	<select id="getChatListByNo" resultType="com.bee.beeMarket.vo.ChatVO">
+	   <![CDATA[
+	      select * 
+	      from bee_chat 
+	      where chat_no > #{chat_no} and channel_no=#{channel_no}
+	      order by chat_no ASC
+	   ]]>
+	</select>
+
+	<select id="getChatList" resultType="com.bee.beeMarket.vo.ChatVO">
+	   <![CDATA[
+	      select * 
+	      from bee_chat 
+	      where chat_no > #{chat_no}
+	      order by chat_no ASC
+	   ]]>
+	</select>
+
+	<select id="getChannelVO" resultType="com.bee.beeMarket.vo.ChatChannelVO">
+		select * from bee_channel where channel_no=#{channel_no}
+	</select>
+   
+	
+</mapper>

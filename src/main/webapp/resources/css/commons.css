@@ -1,0 +1,251 @@
+@charset "UTF-8";
+
+*{
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font: 16px Arial, sans-serif;
+}
+
+a {
+	text-decoration: none;
+	font-size: 25px;
+	font-weight: bold;
+	color: #5b5b5b;
+}
+
+a:hover {
+	text-decoration: blink;
+	font-size: 25px;
+	font-weight: bold;
+	color: #5b5b5b;
+}
+
+.navbox{
+	padding: 0 150px 0 150px;
+	height: auto;
+	margin-top: 50px;
+	text-align: left;
+	margin-bottom:40px;
+	font-size: 45px;
+	font-weight: bold;
+	color: #5b5b5b;
+}
+
+#container{
+	height: auto;
+} 
+.upperbanner{
+	margin:0 auto;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	padding: auto 150px auto 150px;
+	color: #f8df07;
+	text-align: left;
+	font-size: 30px;
+	font-weight: bold;
+	height: 200px;
+	width: auto;
+}
+
+.todayBest{
+	margin:0 auto;
+	margin-top: 120px;
+	padding: 0 20px 0 20px;
+	color: #f8df07;
+	text-align: left;
+	font-size: 30px;
+	font-weight: bold;
+	height: 400px;
+	width: auto;
+	background-color: #e7e8eb;
+}
+.promotionbanner{
+	margin:0 auto;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	color: #f8df07;
+	text-align: left;
+	font-size: 30px;
+	font-weight: bold;
+	height: 200px;
+	width: auto;
+}
+.mainCategory{
+	margin:0 auto;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	color: #f8df07;
+	text-align: left;
+	font-size: 30px;
+	font-weight: bold;
+	height: 200px;
+	width: auto;
+}
+
+.cateList{
+	padding: 30px 50px 10px 50px;
+	font-size: 25px;
+	font-weight: bold;
+	color: #5b5b5b;
+	text-align: center;
+	word-spacing: 20px;
+	line-height: 10px;
+}
+
+body {
+   margin:0;
+   padding:0;
+   height:100%;
+}
+
+.wrap {
+   min-height:100%;
+   position:relative;
+}
+
+.footer {
+   position:absolute;
+   bottom:0;
+   background-color: #333;
+   color: #ccc;
+}
+
+.banner{
+	margin:0 auto;
+	margin-top: 120px;
+	color: #ffffff;
+	text-align: center;
+	height: 600px;
+	width: auto;
+	background-color: #dfe0e6;
+}
+.banners{
+	margin:0 auto;
+	margin-top: 40px;
+	color: #ffffff;
+	text-align: center;
+	height: 300px;
+	width: auto;
+	background-color: #fccd11;
+}
+
+.main_section{
+	padding: 200px 0 200px 0;
+}
+
+.lecture{
+	margin-top: 130px;
+	margin-bottom: 5px;
+	font-size: 30px;
+	font-weight: bold;
+}
+.sub_lecture{
+	font-size: 16px;
+}
+.titles{
+	margin-top: 50px;
+	text-align: center;
+	margin-bottom:40px;
+	font-size: 45px;
+	font-weight: bold;
+	color: #fccd11;
+}
+.lectures{
+	margin-top: 50px;
+	margin-bottom: 5px;
+	font-size: 30px;
+	font-weight: bold;
+}
+.sub_lectures{
+	font-size: 16px;
+}
+.lecture_title{
+	text-decoration: none;
+	margin-bottom:10px;
+	font-size: 30px;
+	font-weight: bold;
+	color: #fccd11;
+}
+.banners{
+	margin:0 auto;
+	margin-top:20px;
+	color: #ffffff;
+	text-align:center;
+	height: 150px;
+	width: auto;
+	background-color: #fccd11;
+}
+.title{
+	text-align: center;
+	margin-bottom:70px;
+	font-size: 45px;
+	font-weight: bold;
+	color: #fccd11;
+}
+.lecture_title{
+	text-decoration: none;
+	margin-bottom:10px;
+	font-size: 30px;
+	font-weight: bold;
+	color: #fccd11;
+}
+.lecture_title:hover{
+	color: #333333;
+}
+.border_clear{
+	border: none;
+}
+.background_color{
+	background-color: #f7f7f7;
+}
+.background_color_clear{
+	background-color: #ffffff;
+}
+
+.btn-yellow{
+	background-color: #fccd11;
+	color: #ffffff;
+	font-weight: bold;
+}
+.btn-yellow:hover{
+	color: #333333;
+}
+
+.teacher_name{
+	margin-bottom: 3px;
+	font-weight: bold;
+	font-size: 18px;
+	color: #9e9e9e;
+}
+.lecture_content{
+	height: 35px;
+	font-size: 16px;
+	color: #9e9e9e;
+}
+.date_text{
+	font-size: 16px;
+	color: #9e9e9e;
+}
+.star_text{
+	padding-right: 0px;
+	font-size: 16px;
+	color: #fccd11;
+}
+.card_footer_size{
+	height: 30px;
+	width: auto;
+	line-height: 30px;
+}
+
+.lecture_avg{
+	margin-left:5px;
+	display: block;
+	font-size: 16px;
+	color: #9e9e9e;
+}
+
+
+
+
+

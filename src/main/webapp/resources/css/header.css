@@ -1,0 +1,94 @@
+@charset "UTF-8";
+*{
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+body{
+	overflow: scroll;
+}
+/* input:focus{color : none} */
+.inputAppearance:focus{
+   outline:0px !important;
+   -webkit-appearance:none;
+   box-shadow: none !important;
+}
+select:focus{
+	border: none;
+	outline:0px !important;
+	/* -webkit-appearance:none; */
+	box-shadow: none !important;
+}
+.container{
+	width: 1200px;
+	max-width: none !important;
+}
+.menu{
+	text-decoration: none; 
+	color: #5b5b5b; 
+	font-size: 20px; 
+	font-weight: bold;
+}
+.menu:hover{
+	color: #5b5b5b; 
+	border-bottom: 5px solid #fccc0c;
+}
+.sellerMenu{
+	text-decoration: none; 
+	color: #fccc0c; 
+	font-size: 20px; 
+	font-weight: bold;
+}
+.sellerMenu:hover{
+	color: #5b5b5b; 
+}
+
+#sideBar{
+	width: 300px;
+	max-width: none !important;
+	height: 100%;
+	position: absolute;
+	top: -10000px;
+	left: -10000px;
+	background-color: #efefef;
+	z-index: 50;
+}
+.loginBarArea{
+	margin-top: 15px;
+	margin-bottom: 15px;
+	padding-left:30px;
+	padding-right:30px;
+	height : 70px;
+	line-height: 70px;
+	background-color: #ffffff;
+	cursor: pointer;
+}
+.loginBar{
+	color: #5b5b5b;
+}
+.catBarArea{
+	padding: 20px 0;
+	margin-bottom: 10px;
+	background-color: #ffffff;
+	color: #5b5b5b;
+	font-size: 16px;
+}
+.categoryBar{
+	height: 50px;
+	line-height: 50px;
+	padding: 0 30px;
+}
+.bar_hover:hover{
+	background-color: #fccc0c;
+	cursor: pointer;
+}
+.background_shadows{
+	width: 100%;
+	height: 10000px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	background-color: #000000;
+	opacity: 0.5;
+	z-index: 30;
+}

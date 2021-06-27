@@ -1,0 +1,153 @@
+@charset "UTF-8";
+* {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+a:hover{
+	text-decoration: blink !important; 
+}
+.container{
+	width : 1200px;
+	max-width: none !important;
+}
+.cartbar{
+	font-size: 18px;
+	font-weight: bold;
+	margin-bottom: 15px;
+	color: #5b5b5b;
+}
+.button{
+	width: 150px;
+	height: 45px;
+	font-size: 18px;
+	background-color: #fccc0c !important;
+	border-radius: 7px;
+	color: #5b5b5b;
+}
+.button:hover{
+	font-size: 1.2em;
+	color: #ffffff;
+	box-shadow: 0px 0px 5px 1px #fccc0c;
+}
+.table{
+	text-align: center;
+}
+.align_left{
+	text-align: left;
+}
+.checkboxLine{
+	width: 50px;
+}
+.priceLine{
+	width: 200px;
+}
+.deliveryLine{
+	width: 150px;
+}
+thead th{
+	font-size: 1.1em;
+	font-weight: bold;
+	border-top: 1pxm solid #cccccc;
+}
+.numberForm{
+	font-size: 16px;
+	padding: 0 !important;
+	margin: 0 !important;
+	width: 30px;
+	height: 30px;
+	text-align: center;
+	line-height:30px;
+}
+#count{
+	font-size: 1em;
+	border-left: none;
+	border-right: none;
+	line-height:30px;
+	cursor: default;
+}
+.numberHover{
+	color: #fccc0c;
+	height: 30px;
+	padding: 0;
+	text-align: center;
+	line-height: normal;
+	cursor: pointer;
+}
+.iconBtnStyle{
+	color: #fccc0c;
+	height: 30px;
+	padding: 0;
+	text-align: right;
+	cursor: pointer;
+}
+.product_name{
+	font-size: 1.1em;
+	font-weight: bold;
+	color: #4c4c4c;
+}
+.productImagePrev{
+	padding: 0px;
+	width: 150px;
+	height: 150px;
+	overflow: hidden;
+    object-fit: cover;
+   	border-radius: 5px;
+	cursor: pointer;
+}
+.tableTitle{
+	font-weight: bold;
+	font-size: 18px;
+	color: #5b5b5b;
+	padding-bottom: 10px;
+	border-bottom: 2px solid #cccccc;
+}
+.tdStyle{
+	vertical-align: middle;
+}
+.tdCenterStyle{
+	vertical-align: middle;
+	text-align: center;
+}
+.semiTitle{
+	font-weight: bold;
+	font-size: 17px;
+	color: #5b5b5b;
+	padding-bottom: 15px;
+	border-bottom: 1px solid #cccccc;
+}
+.thStyle{
+	height: 45px;
+	line-height: 45px;
+	text-align: left;
+	padding-left: 50px;
+	font-size: 15px;
+	font-weight: bold;
+	color: #666666;
+	border-bottom: 1px solid #dbdbdb;
+}
+.tdStyle{
+	height: 45px;
+	line-height: 45px;
+	text-align: left;
+	font-size: 15px;
+	border-bottom: 1px solid #dbdbdb;
+}
+.modalbtnStyle{
+	margin-left: 10px;
+	display: inline;
+	background-color: #fdefb9 !important;
+	border: none;
+	font-weight: normal;
+	color: #5b5b5b;
+	border-radius:5px;
+	padding: 5px 10px;
+	line-height: 30px;
+	cursor: pointer;
+}
+.rowMargin{
+	margin-bottom: 65px;
+}
+#spanStyle{
+	color: #fccc0c;
+}

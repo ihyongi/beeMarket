@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bee.beeMarket.fleemarket.mapper.FleeMarketImageSQLMapper">
+	<insert id="insertImage">
+		insert into Bee_FleeMarketImage values(
+			Bee_FleeMarketImage_seq.nextval,
+			#{fleemarket_no},
+			#{fleemarketimage_location},
+			#{fleemarketimage_orifilename}
+		)
+	</insert>
+	
+	<select id="selectByFleeMarketNo" resultType="com.bee.beeMarket.vo.FleeMarketImageVO">
+		select * from Bee_FleeMarketImage where fleemarket_no=#{fleemarket_no}
+	</select>
+	
+	<select id="getFleeMarketImageByNo" resultType="com.bee.beeMarket.vo.FleeMarketImageVO">
+		SELECT * FROM Bee_FleeMarketImage WHERE fleemarket_no=#{fleemarket_no} and rownum = 1
+	</select>
+
+</mapper>

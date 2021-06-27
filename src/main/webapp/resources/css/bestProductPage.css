@@ -1,0 +1,88 @@
+@charset "UTF-8";
+#category_area{
+	min-width: 180px;
+	padding: 2px 5px 2px 5px;
+	border: 2px solid #efefef;
+	border-radius: 5px;
+}
+#categoryDetail_area{
+	min-width: 180px;
+	padding: 2px 5px 2px 5px;
+	border: 2px solid #efefef;
+	border-radius: 5px;
+}
+.selectButton{
+	padding: 3px 10px 3px 10px;
+	border-radius: 5px;
+	background-color: #fccc0c;
+	color: #ffffff;
+}
+.cardSector{
+	padding: 12px;
+	text-align: center;
+	margin: 0 auto;
+}
+.cardImageArea{
+	padding: 12px;
+	width: 274px;
+	margin: 0 auto;
+	border-top: 2px solid #efefef;
+	border-left: 2px solid #efefef;
+	border-right: 2px solid #efefef;
+	border-radius: 5px;
+}
+.cardImage{
+	padding: 0px;
+	height: 246px;
+	width: 246px;
+	overflow: hidden;
+    object-fit: cover;
+   	border-radius: 5px;
+	cursor: pointer;
+}
+.cardContentsArea{
+	padding: 0 12px 12px 12px;
+	width: 274px;
+	margin: 0 auto;
+	border-bottom: 2px solid #efefef;
+	border-left: 2px solid #efefef;
+	border-right: 2px solid #efefef;
+	border-radius: 5px;
+}
+.cardTitle{
+	padding: 0px 3px;
+	display: block;
+	text-align:left;
+	text-decoration:none;
+	font-size: 20px;
+	font-weight:bold;
+	color: #5b5b5b;
+	width: 246px !important;
+	height: 65px;
+	text-overflow: ellipsis;  /* 위에 설정한 100px 보다 길면 말줄임표처럼 표시합니다. */
+  	overflow     : hidden;
+  	cursor: pointer;
+}
+.cardTitle:hover{
+	text-decoration:none;
+	font-weight:bold;
+	color: #fccd11;
+}
+.cardPrice{
+	padding: 0px 3px;
+	text-decoration:none;
+	font-size: 20px;
+	font-weight:bold;
+	color: #5b5b5b;
+	cursor: pointer;
+}
+.cardName{
+	padding: 0px 3px;
+	text-align:left;
+	font-size: 14px;
+	color: #bcbcbc;
+	width: 246px !important;
+	height: 20px;
+	text-overflow: ellipsis;  /* 위에 설정한 100px 보다 길면 말줄임표처럼 표시합니다. */
+  	overflow: hidden;    /* 내용이 길면 감춤니다 */
+}

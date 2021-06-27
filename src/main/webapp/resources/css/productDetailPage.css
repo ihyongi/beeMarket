@@ -1,0 +1,141 @@
+@charset "UTF-8";
+* {
+	margin: 0;
+	padding: 0;
+	text-decoration: none;
+	border: 0;
+}
+.card{
+	width: 360px;
+	background: #f1f1f1;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%,-50%);
+}
+.top-section{
+	height: 310px;
+	overflow: hidden;
+	background: #ffffff;
+	position: relative;
+}
+.star-rating{
+  display: flex;
+  flex-direction: row-reverse;
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  justify-content: space-around;
+  padding: 0 0.2em;
+  text-align: center;
+  width: 5em;
+}
+
+.star-rating input {
+  display: none;
+}
+ 
+.star-rating label {
+  -webkit-text-fill-color: transparent; /* Will override color (regardless of order) */
+  -webkit-text-stroke-width: 2.3px;
+  -webkit-text-stroke-color: #2b2a29;
+  cursor: pointer;
+}
+ 
+.star-rating :checked ~ label {
+  -webkit-text-fill-color: gold;
+}
+ 
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+  -webkit-text-fill-color: #fff58c;
+}
+
+.star-ratings {
+  color: #aaa9a9; 
+  position: relative;
+  unicode-bidi: bidi-override;
+  width: max-content;
+  -webkit-text-fill-color: transparent; /* Will override color (regardless of order) */
+  -webkit-text-stroke-width: 1.3px;
+  -webkit-text-stroke-color: #2b2a29;
+}
+ 
+.star-ratings-fill {
+  color: #fff58c;
+  padding: 0;
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  -webkit-text-fill-color: gold;
+}
+ 
+.star-ratings-base {
+  z-index: 0;
+  padding: 0;
+}
+
+.category_area{
+	font-size: 16px;
+	color: #686868;
+}
+
+/* 상품 이미지 조절코드 */
+#image_container{
+	padding:0px;
+	margin:0px 0px 12px 0px;
+	width: 476px;
+	height: 476px;
+	overflow: hidden;
+    object-fit: cover;
+    border-radius: 5px;
+}
+.imagePrev{
+	width: 114px;
+	height: 114px;
+	overflow: hidden;
+    object-fit: cover;
+    border-radius: 5px;
+	border: 1px solid #ddd;
+	cursor: pointer;
+	transition: 0.3s;
+}
+.imagePrev:hover{
+	border-color: #fccc0c;
+}
+.imageHover:hover{
+	opacity: 0.5; 
+	filter: alpha(opacity=50);
+}
+
+/* 상품정보 표기영역 */
+.name{
+	margin-bottom: 20px;
+	font-size: 30px;
+	height: 90px; 
+}
+.price{
+	font-size: 25px;
+	font-weight: bold;
+}
+.title{
+	font-size: 16px; 
+	color: #919191;
+}
+.content{
+	font-size: 16px;
+	color: #919191;
+	overflow: scroll;
+	-ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+/* 스크롤바 숨기기 */
+.content::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera*/
+}
+.detailPrice{
+	font-size:15px;
+	color: #919191;
+}

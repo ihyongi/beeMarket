@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bee.beeMarket.seller.mapper.SellerSQLMapper">
+	
+	<!-- ** 회원가입 ** -->
+	
+	<!-- seller_no createKey -->
+	<select id="createSellerKey" resultType="int">
+		SELECT Bee_Seller_seq.nextval FROM Dual
+	</select>
+	<!-- 회원가입 - 데이터 인서트 -->
+	<insert id="insertSeller">
+		INSERT INTO Bee_seller VALUES (
+		    	#{seller_no},
+		    	1,
+				#{seller_id},
+				#{seller_pw},
+				#{seller_name},
+				#{seller_address},
+				#{seller_business_no},
+				#{bank_no},
+				#{seller_account},
+				#{seller_fax_no},
+				#{seller_email},
+				#{seller_phone},
+				SYSDATE
+			)
+	</insert>
+	<!-- 회원가입 - 이메일 인증 -->
+	<insert id="insertSellerEmailAuth">
+		INSERT INTO Bee_SellerEmail VALUES(
+		    Bee_SellerEmail_seq.nextval,
+		    #{seller_no},
+		    #{selleremail_auth_key},
+		    'N',
+		    NULL
+		)
+	</insert>
+	<!-- 이메일 인증여부 N을 Y로 업데이트 -->
+	<update id="updateSellerEmailComplete">
+		UPDATE Bee_SellerEmail 
+		SET selleremail_auth_complete = 'Y', selleremail_auth_date = SYSDATE
+		WHERE selleremail_auth_key = #{authKey}
+	</update>
+	
+	<!-- ** 은행목록 **  -->
+	<select id="getBankList" resultType="com.bee.beeMarket.vo.BankVO">
+		SELECT * FROM Bee_BankAccount
+	</select>
+	
+	<!-- ** 판매자 프로필 사진 ** -->
+	<insert id="insertSellerImage">
+		INSERT INTO Bee_SellerImage VALUES(
+			#{sellerimage_no},
+			#{seller_no},
+			#{sellerimage_location},
+			#{sellerimage_orifilename}
+		)
+	</insert>
+	<select id="selectSellerImageByNo">
+		SELECT * FROM  Bee_SellerImage WHERE seller_no=#{seller_no}
+	</select>
+	
+	<!-- 아이디 중복검사 -->
+	<select id="selectById2" resultType="int">
+		SELECT COUNT(*) FROM Bee_Seller WHERE seller_id = #{id}
+	</select>
+	
+	
+	<!-- ** 로그인 ** -->
+	<select id="selectByIdAndPw" resultType="com.bee.beeMarket.vo.SellerVO">
+		SELECT * 
+		FROM Bee_Seller
+		JOIN Bee_SellerEmail USING (seller_no)
+		WHERE seller_id = #{seller_id} 
+		AND seller_pw = #{seller_pw} 
+		AND selleremail_auth_complete = 'Y'
+	</select>
+
+	<!-- seller_no로 seller정보가져오기 -->
+	<select id="selectBySellerNo" resultType="com.bee.beeMarket.vo.SellerVO">
+		SELECT * FROM Bee_Seller WHERE seller_no=#{seller_no}
+	</select>
+
+
+	<!-- ** 비밀번호 변경 ** -->
+
+	<!-- 비밀번호 찾기를 위한 본인확인 -->
+	<select id="selectByIdAndEmail" resultType="com.bee.beeMarket.vo.SellerVO">
+		SELECT * 
+		FROM Bee_Seller 
+		WHERE seller_id=#{seller_id}
+		AND seller_email=#{seller_email}
+	</select>
+
+	<!-- seller_no로 seller정보가져오기 -->
+	<select id="selectByNo" resultType="com.bee.beeMarket.vo.SellerVO">
+		SELECT * FROM Bee_Seller WHERE seller_no=#{seller_no}
+	</select>
+
+	<!-- seller_id로 seller정보가져오기 -->
+	<select id="selectById" resultType="com.bee.beeMarket.vo.SellerVO">
+		SELECT * FROM Bee_Seller WHERE seller_id=#{seller_id}
+	</select>
+
+	<!-- 메일인증 후 비밀번호 변경 -->
+	<update id="updateSellerPassword">
+		UPDATE Bee_Seller
+		SET seller_pw = #{seller_pw}
+		WHERE seller_id = #{seller_id}
+	</update>
+
+
+	<!-- 0523작업 -->
+
+	<select id="createSellerWalletKey" resultType="int">
+		select Bee_SellerWallet_seq.nextval from Dual
+	</select>
+	
+	<update id="updateSellerVO">
+		UPDATE Bee_seller
+		SET seller_address=#{seller_address},
+		seller_email=#{seller_email},
+		bank_no=#{bank_no},
+		seller_account=#{seller_account}
+		WHERE seller_no=#{seller_no}
+	</update>
+
+	<!-- 셀러 지갑만들기 -->
+	<insert id="insertSellerWallet">
+		INSERT INTO Bee_SellerWallet VALUES (
+			#{wallet_no},
+			#{seller_no},
+			#{cash_amount},
+			SYSDATE
+		)
+	</insert>
+
+	<select id="getSellerWallet" resultType="com.bee.beeMarket.vo.SellerWalletVO">
+		SELECT * FROM Bee_SellerWallet WHERE seller_no=#{seller_no}
+	</select>
+
+	<select id="getBankVO" resultType="com.bee.beeMarket.vo.BankVO">
+		SELECT * 
+		FROM Bee_BankAccount
+		WHERE bank_no=#{bank_no}
+	</select>
+
+	<!-- 출금 -->
+	<insert id="insertWithdraw">
+		INSERT INTO bee_sellerWithdraw VALUES(
+			bee_sellerWithdraw_seq.nextval,
+			#{wallet_no},
+			#{bank_no},
+			#{seller_account},
+			#{withdraw_commission},
+			#{withdraw_amount},
+			SYSDATE
+		)
+	</insert>
+
+	<update id="updateWallet">
+		UPDATE bee_sellerWallet
+		SET
+		cash_amount=cash_amount-#{withdraw_amount},
+		wallet_updateDate=SYSDATE
+		WHERE seller_no=#{seller_no}
+	</update>
+
+	<!-- 출금내역 -->
+   <select id="getWithdrawList" resultType="com.bee.beeMarket.vo.SellerWithdrawVO">
+   select t2.* from(
+      select t1.*, rownum rnum from(
+         SELECT *
+         FROM bee_sellerWithdraw
+         WHERE wallet_no = #{wallet_no}
+         )t1
+      )t2
+   <![CDATA[  
+   where t2.rnum >=(#{page_num}-1)*7+1 and t2.rnum<= #{page_num}*7
+            ]]>      
+   </select>
+	
+	<select id="getTotalWithdrawCount" resultType="int">
+      SELECT COUNT(withdraw_no) FROM Bee_sellerWithdraw where wallet_no=#{wallet_no} 
+   </select>
+	
+	<!-- 0529 -->
+   <!-- 구매확정시 셀러적립 -->
+   <update id="earnWallet">
+      UPDATE Bee_SellerWallet 
+      SET cash_amount=cash_amount+#{order_price}, wallet_updateDate=SYSDATE 
+      WHERE seller_no=#{seller_no}
+   </update>
+   
+   <!-- createImageKey -->
+   <select id="createSellerImageKey" resultType="int">
+      select Bee_SellerImage_seq.nextval from Dual
+   </select>
+
+   <select id="getSellerGradeRate" resultType="com.bee.beeMarket.vo.SellerGradeVO">
+      select * from Bee_SellerGrade where sellergrade_no=#{sellergrade_no}
+   </select>
+   
+   <!-- 0531 -->
+   <update id="updateWalletMinus">
+      UPDATE Bee_SellerWallet 
+      SET cash_amount=cash_amount-#{totalMinus}, wallet_updateDate=SYSDATE 
+      WHERE seller_no=#{seller_no}
+   </update>
+   
+   <update id="updateWalletPlus">
+      UPDATE Bee_SellerWallet 
+      SET cash_amount=cash_amount+#{order_price}, wallet_updateDate=SYSDATE 
+      WHERE seller_no=#{seller_no}
+   </update>
+	
+	
+	<!-- qna 게시판 -->
+	<select id="selectByQnANo"
+		resultType="com.bee.beeMarket.vo.SellerQnAVO">
+		SELECT * FROM Bee_SellerQnA WHERE sellerQnA_no =
+		#{sellerQnA_no}
+	</select>
+	<!-- qna 키생성 -->
+	<select id="createSellerQnAkey" resultType="int">
+		SELECT
+		Bee_SellerQnA_seq.nextval FROM Dual
+	</select>
+	<!-- qna 인서트 -->
+	<insert id="insertqna">
+		INSERT INTO Bee_SellerQnA VALUES(
+		#{sellerQnA_no},
+		#{seller_no},
+		#{sellerqnacategory_no},
+		#{sellerQnA_title},
+		#{sellerQnA_content},
+		'N',
+		SYSDATE
+		)
+	</insert>
+	<!-- qna 게시판 내용 찾아오기 + 페이지넘버링 -->
+	<select id="selectSellerQnAContent"
+		resultType="com.bee.beeMarket.vo.SellerQnAVO">
+		SELECT * FROM (
+		SELECT t1.* , ROWNUM rnum FROM (
+		SELECT sq.* FROM Bee_SellerQnA sq, Bee_Seller bs
+		WHERE sq.seller_no = bs.seller_no
+		AND sq.seller_no = #{sellerNo}
+		ORDER BY sq.sellerQnA_no DESC
+		) t1
+		) t2
+			<![CDATA[
+			WHERE t2.rnum >= (#{pageNum}-1)*8+1
+			AND t2.rnum <= #{pageNum}*8
+			]]>
+	</select>
+	<!-- qna 게시판 게시글 갯수 -->
+	<select id="selectContentCount" resultType="int">
+		SELECT COUNT(*) FROM
+		Bee_SellerQnA
+	</select>
+	
+	<!--  QnA 이미지 삽입  -->
+	<insert id="insertSellerQnAImage" >
+	insert into Bee_SellerQnAImage values(
+	Bee_SellerQnAImage_seq.nextval,
+	#{sellerQnA_no},
+	#{sellerqnaimage_location},
+	#{sellerqnaimage_orifilename}
+	)
+	</insert>
+	<!-- QnA 이미지  QnANo로 가져오기 -->
+	<select id="selectSellerQnAImageByQnANo" resultType="com.bee.beeMarket.vo.SellerQnAImageVO">
+		select * from Bee_SellerQnAImage where
+		sellerQnA_no=#{sellerQnA_no}
+	</select>
+	
+	
+	<!-- 카테고리 목록  -->
+	<select id="getSellerQnACategory"
+		resultType="com.bee.beeMarket.vo.SellerQnACategoryVO">
+		select * from Bee_SellerQnACategory
+	</select>
+	<!-- 카테고리 이름 가져오기.-->
+	<select id="getSellerQnACategoryName"
+		resultType="com.bee.beeMarket.vo.SellerQnACategoryVO">
+		select * from Bee_SellerQnACategory sqc
+		join Bee_SellerQnA sq on
+		sqc.sellerqnacategory_no=sq.sellerqnacategory_no
+		where sellerQnA_no=#{sellerQnA_no}
+	</select>
+	
+	
+	<select id="checkSellerInfo" resultType="int">
+		SELECT COUNT(*) FROM bee_seller where seller_id = #{seller_id} AND seller_pw = #{sellerPw}
+	</select>
+	
+	<!-- 0602 -->
+   <!-- 클릭수 조회 -->
+   <select id="getClickData" resultType="map">
+      select p.product_name, p.product_readcount from Bee_order o, Bee_productdetail d, Bee_product p, Bee_seller s
+      where o.productdetail_no=d.productdetail_no
+      and p.product_no=d.product_no
+      and p.seller_no=s.seller_no
+      and s.seller_no=#{seller_no}
+      group by  p.product_name, p.product_readcount
+   </select>
+
+   <!-- 판매수량에따른 랭킹 -->
+   <select id="getRankingData" resultType="map">
+      select ROWNUM as "RANK", t1.* from(
+      SELECT ( 
+         SELECT sum(bo.order_count) as FROM Bee_Product bp2 , Bee_ProductDetail pb , Bee_Order bo
+         WHERE bp2.product_no = pb.product_no 
+         AND pb.productdetail_no = bo.productdetail_no
+         AND bp2.product_no = bp.product_no
+      ) as ordercnt, bp.*
+      FROM Bee_Product bp 
+        where bp.seller_no=#{seller_no}  
+      ORDER BY ordercnt DESC) t1
+   </select>
+   
+   <!-- 0603 -->
+   <!-- 날짜별...전일대비 매출액 -->
+	<select id="getDateData" resultType="map">
+      <![CDATA[
+      select sum(o.order_price) as aa,to_date(o.order_orderdate) as bb from Bee_order o, Bee_productdetail d, Bee_product p, Bee_seller s
+      where o.productdetail_no=d.productdetail_no
+      and p.product_no=d.product_no
+      and s.seller_no=p.seller_no
+      and s.seller_no=#{seller_no} and to_date(o.order_orderdate)>= to_date(SYSDATE)-1
+      group by to_date(o.order_orderdate)
+      ]]>
+	</select>
+	
+	
+</mapper>
