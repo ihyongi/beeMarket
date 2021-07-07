@@ -337,11 +337,12 @@ public class OrderServiceImpl {
 		return customerSQLMapper.getCoupondataByCouponNo(coupon_no);
 	}
 
-	// 0528 효은
+	
 	public ProductDetailVO getproductDetailVOByNo(int productdetail_no) {
 		return orderSQLMapper.getproductDetailVOByNo(productdetail_no);
 	}
-
+	
+	// 0528 효은
 	public ArrayList<HashMap<String, Object>> getOrderList(int seller_no) {
 		ArrayList<HashMap<String, Object>> result = new ArrayList<HashMap<String, Object>>();
 		ArrayList<SellerVO> orderList = orderSQLMapper.getOrderListBySellerNo(seller_no);
